@@ -5,6 +5,8 @@ from util import determine_time_range
 
 
 if __name__ == "__main__":
+
+
     stage_time_range = determine_time_range(os.environ["STAGE_TABLE"])
     if stage_time_range:
         print(f"Uploading stage data between {stage_time_range}")

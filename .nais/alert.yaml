@@ -2,12 +2,12 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: metrics-markedsplassen-alert
-  namespace: nada
+  namespace: datajegerne
   labels:
-    team: nada
+    team: datajegerne
 spec:
   groups:
-  - name: metrics-markedsplassen-alert
+  - name: metrics-datajegerne-alert
     rules:
     - alert: NaisjobDown
       expr: kube_job_failed{job_name=~"^metrics-markedsplassen.*", namespace="nada"} > 0

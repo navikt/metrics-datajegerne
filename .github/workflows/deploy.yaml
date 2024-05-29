@@ -1,4 +1,4 @@
-name: Deploy metrics dataproduct pipeline
+name: Deploy metrics datajegerne pipeline
 
 on: push
 
@@ -18,7 +18,7 @@ jobs:
         uses: nais/docker-build-push@v0
         id: docker-build-push
         with:
-          team: nada
+          team: datajegerne
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
@@ -33,5 +33,4 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: .nais/naisjob.yaml,.nais/alert.yaml
           VAR: image=${{ needs.build-and-push.outputs.image }}
