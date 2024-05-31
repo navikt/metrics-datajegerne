@@ -2,9 +2,9 @@ apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
   labels:
-    team: datajegerne
+    team: teamdatajegerne
   name: metrics-datajegerne
-  namespace: datajegerne
+  namespace: teamdatajegerne
 spec:
   image: {{ image }}
   schedule: '00 8 * * *'
