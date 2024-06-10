@@ -13,3 +13,6 @@ if __name__ == "__main__":
     run_etl_risikoeier() # risikoeiere
     run_etl_beskrivelser() # beskrivelser
 
+
+    print("Jobben kjørt!")
+

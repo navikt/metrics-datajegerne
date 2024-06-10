@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+
 import pandas as pd
 import pandas_gbq
 
@@ -28,6 +30,8 @@ def run_etl_beskrivelser():
 
         df_mother = pd.concat([df_mother, df_temp])
 
+    df_mother["version"] = datetime.now()
+
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
 
@@ -37,7 +41,7 @@ def run_etl_beskrivelser():
     table = "beskrivelser"
 
     table_id = f"{project}.{dataset}.{table}"
-    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_APPEND")
     job = client.load_table_from_dataframe(df_mother, table_id, job_config=job_config)
 
     return None
