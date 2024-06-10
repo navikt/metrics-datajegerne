@@ -33,7 +33,7 @@ def run_etl_risikoeier():
 
 
     project = "teamdatajegerne-prod-c8b1"
-    dataset = "alerts"
+    dataset = "metrics"
     table = "risikoeier"
 
     table_id = f"{project}.{dataset}.{table}"
