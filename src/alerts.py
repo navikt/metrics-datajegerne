@@ -37,6 +37,8 @@ def run_etl_alerts():
 
     df_mother["version"] = datetime.now()
 
+    df_mother.drop_duplicates(inplace=True)
+
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
 
