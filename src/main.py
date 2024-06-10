@@ -5,6 +5,7 @@ from risikoeier import run_etl_risikoeier
 from beskrivelser import run_etl_beskrivelser
 
 
+
 if __name__ == "__main__":
     run_etl_prioriterte_krav() # prioriterte_krav
     run_etl_sist_oppdatert() # sist oppdatert på dokument-nivå
