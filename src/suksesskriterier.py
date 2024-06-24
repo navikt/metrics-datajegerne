@@ -167,6 +167,6 @@ def run_etl_suksesskriterier():
 
     table_id = f"{project}.{dataset}.{table}"
     job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_APPEND")
-    job = client.load_table_from_dataframe(df_mother, table_id, job_config=job_config)
+    job = client.load_table_from_dataframe(df_merged, table_id, job_config=job_config)
 
     return None
