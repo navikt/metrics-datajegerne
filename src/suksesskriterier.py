@@ -145,6 +145,8 @@ def run_etl_suksesskriterier():
     df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "avdeling"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
     df_merged = df_merged.merge(df_relevante_krav[["kravNummer", "tema"]].drop_duplicates(), on="kravNummer")
 
+    df_merged = df_merged[df_merged["lastUpdated"].notnull()]
+
     # Er en del missing etter merge
     df_merged.loc[df_merged["kravOppfylt"].isnull(), "kravOppfylt"] = False
     df_merged.loc[df_merged["kravFerdigUtfylt"].isnull(), "kravFerdigUtfylt"] = False
