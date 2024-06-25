@@ -142,7 +142,8 @@ def run_etl_suksesskriterier():
 
     # Merger besvarelsene med oversikt over relevante krav
     df_merged = df[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "kravOppfylt", "kravFerdigUtfylt", "suksesskriterieId", "statusKriterium", "begrunnelse", "lastUpdated"]].merge(df_relevante_krav[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "aktivVersjon"]].drop_duplicates(), on=["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon"], how="outer")
-    df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "avdeling", "tema"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
+    df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "avdeling"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
+    df_merged = df_merged.merge(df_relevante_krav[["kravNummer", "tema"]].drop_duplicates(), on="kravNummer")
 
     # Er en del missing etter merge
     df_merged.loc[df_merged["kravOppfylt"].isnull(), "kravOppfylt"] = False
@@ -157,8 +158,6 @@ def run_etl_suksesskriterier():
     df_merged.loc[df_merged["begrunnelse"].notnull(), "begrunnelseAntallTegn"] = df_merged.loc[df_merged["begrunnelse"].notnull(), "begrunnelse"].apply(lambda x: len(x))
 
     df_merged["version"] = datetime.now()
-
-    df_merged["tag"] = None
 
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
