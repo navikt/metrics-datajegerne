@@ -158,7 +158,7 @@ def run_etl_suksesskriterier():
 
     df_merged["version"] = datetime.now()
 
-    df_merged["tag"] = []
+    df_merged["tag"] = None
 
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
