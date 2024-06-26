@@ -14,9 +14,21 @@ def run_etl_suksesskriterier():
     df["relevansFor"] = df["data"].apply(lambda x: json.loads(x)["relevansFor"])
     df["kravNummer"] = df["data"].apply(lambda x: json.loads(x)["kravNummer"])
     df["kravVersjon"] = df["data"].apply(lambda x: json.loads(x)["kravVersjon"])
+
+    # Må hente ut data per suksesskriterium og
+    list_id = []
+    list_begrunnelser = []
+    for i, rows in df.iterrows():
+        items = json.loads(rows["data"])["suksesskriterier"]
+        list_id.append([item["id"] for item in items])
+        list_begrunnelser.append([item["behovForBegrunnelse"] for item in items])
+    df["suksesskriterieId"] = list_id
+    df["behovForBegrunnelse"] = list_begrunnelser
+
     df.drop("data", axis=1, inplace=True)
     df_krav = df.explode("relevansFor")
     df_krav.loc[df_krav["relevansFor"].isnull(), "relevansFor"] = "ALLE"
+    df_krav = df_krav.explode(["suksesskriterieId", "behovForBegrunnelse"])
     df_krav.drop_duplicates(inplace=True)
 
     # Trenger å knytte krav til tema
@@ -140,20 +152,20 @@ def run_etl_suksesskriterier():
     df["kravOppfylt"] = df["statusKriterium"].apply(lambda x: True if all([True if item in ["OPPFYLT", "IKKE_RELEVANT"] else False for item in x]) else False)
     df["kravFerdigUtfylt"] = df["statusKriterium"].apply(lambda x: True if all([True if item in ["OPPFYLT", "IKKE_RELEVANT", "IKKE_OPPFYLT"] else False for item in x]) else False)
 
+    # Ekspanderer så vi har en linje per suksesskriterie
+    df = df.explode(["suksesskriterieId", "statusKriterium", "begrunnelse"]).copy()
+
     # Merger besvarelsene med oversikt over relevante krav
-    df_merged = df[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "kravOppfylt", "kravFerdigUtfylt", "suksesskriterieId", "statusKriterium", "begrunnelse", "lastUpdated"]].merge(df_relevante_krav[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "aktivVersjon"]].drop_duplicates(), on=["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon"], how="outer")
+    df_merged = df[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "kravOppfylt", "kravFerdigUtfylt", "suksesskriterieId", "statusKriterium", "begrunnelse", "lastUpdated"]].merge(df_relevante_krav[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId", "behovForBegrunnelse", "aktivVersjon"]].drop_duplicates(), on=["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId"], how="outer")
     df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "avdeling"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
     df_merged = df_merged.merge(df_relevante_krav[["kravNummer", "tema"]].drop_duplicates(), on="kravNummer")
-
-    df_merged = df_merged[df_merged["lastUpdated"].notnull()]
 
     # Er en del missing etter merge
     df_merged.loc[df_merged["kravOppfylt"].isnull(), "kravOppfylt"] = False
     df_merged.loc[df_merged["kravFerdigUtfylt"].isnull(), "kravFerdigUtfylt"] = False
     df_merged.loc[df_merged["aktivVersjon"].isnull(), "aktivVersjon"] = False
 
-    # Vil ekspandere så vi har en linje per suksesskriterie
-    df_merged = df_merged.explode(["suksesskriterieId", "statusKriterium", "begrunnelse"])
+
 
     # Teller antall tegn per besvarelse
     df_merged["begrunnelseAntallTegn"] = None

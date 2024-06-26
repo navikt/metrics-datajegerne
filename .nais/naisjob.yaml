@@ -7,7 +7,7 @@ metadata:
   namespace: teamdatajegerne
 spec:
   image: {{ image }}
-  schedule: '00 8 * * *'
+  schedule: '00 4 * * *'
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
   concurrencyPolicy: Forbid
