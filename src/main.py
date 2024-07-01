@@ -5,6 +5,7 @@ from alerts import run_etl_alerts
 from risikoeier import run_etl_risikoeier
 from beskrivelser import run_etl_beskrivelser
 from suksesskriterier import run_etl_suksesskriterier
+from websak import run_etl_websak
 
 
 
@@ -16,6 +17,7 @@ if __name__ == "__main__":
     run_etl_risikoeier() # risikoeiere
     run_etl_beskrivelser() # beskrivelser
     run_etl_suksesskriterier() # besvarelser
+    run_etl_websak() # arkivering
 
     print("Jobben kjørt!")
 

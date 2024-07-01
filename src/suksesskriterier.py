@@ -43,6 +43,7 @@ def run_etl_suksesskriterier():
     # Må grave ut fra json-strukturen
     df["etterlevelseNummer"] = df["data"].apply(lambda x: json.loads(x)["data"]["etterlevelseNummer"])
     df["irrelevansFor"] = df["data"].apply(lambda x: json.loads(x)["data"]["irrelevansFor"])
+    df["tittel"] = df["data"].apply(lambda x: json.loads(x)["data"]["title"])
 
     array_avdeling = []
     for i, rows in df.iterrows():
@@ -57,7 +58,7 @@ def run_etl_suksesskriterier():
     df = df[df["sist_oppdatert"] == df["time"]]
 
     # Beholder bare kolonner vi skal ha med videre
-    df = df[["table_id", "irrelevansFor", "etterlevelseNummer", "avdeling", "sist_oppdatert"]].copy()
+    df = df[["table_id", "irrelevansFor", "etterlevelseNummer", "tittel", "avdeling", "sist_oppdatert"]].copy()
     df.rename({"table_id": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
 
     # Merger informasjon om etterlevelsesdokumenter med informasjon om krav slik at vi får en oversikt over relevante krav per etterlevelsesdokument
@@ -157,7 +158,7 @@ def run_etl_suksesskriterier():
 
     # Merger besvarelsene med oversikt over relevante krav
     df_merged = df[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "kravOppfylt", "kravFerdigUtfylt", "suksesskriterieId", "statusKriterium", "begrunnelse", "lastUpdated"]].merge(df_relevante_krav[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId", "behovForBegrunnelse", "aktivVersjon"]].drop_duplicates(), on=["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId"], how="outer")
-    df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "avdeling"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
+    df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "tittel", "avdeling"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
     df_merged = df_merged.merge(df_relevante_krav[["kravNummer", "tema"]].drop_duplicates(), on="kravNummer")
 
     # Er en del missing etter merge
