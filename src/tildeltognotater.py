@@ -36,7 +36,7 @@ def run_etl_tildelt_og_notater():
     df = df.merge(df_tema, on="kravNummer", how="outer")
 
     df = df.explode("tildeltMed")
-    tildeltMedDict = {val: uuid.uuid4() for val in df["tildeltMed"].unique()} # anonymiserer
+    tildeltMedDict = {val: str(uuid.uuid4()) for val in df["tildeltMed"].unique()} # anonymiserer
     df["tildeltMed"] = df["tildeltMed"].map(tildeltMedDict)
 
     # Skrive til BigQuery
