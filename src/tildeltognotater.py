@@ -37,7 +37,7 @@ def run_etl_tildelt_og_notater():
 
     df = df.explode("tildeltMed")
     tildeltMedDict = {val: str(uuid.uuid4()) for val in df["tildeltMed"].unique()} # anonymiserer
-    df["tildeltMed"] = df["tildeltMed"].map(tildeltMedDict)
+    df.loc[df["tildeltMed"].notnull(), "tildeltMed"] = df.loc[df["tildeltMed"].notnull(), "tildeltMed"].map(tildeltMedDict)
 
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
