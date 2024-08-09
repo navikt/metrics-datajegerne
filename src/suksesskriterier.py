@@ -44,6 +44,7 @@ def run_etl_suksesskriterier():
     df["etterlevelseNummer"] = df["data"].apply(lambda x: json.loads(x)["data"]["etterlevelseNummer"])
     df["irrelevansFor"] = df["data"].apply(lambda x: json.loads(x)["data"]["irrelevansFor"])
     df["tittel"] = df["data"].apply(lambda x: json.loads(x)["data"]["title"])
+    df["created_time_dokument"] = df.groupby("etterlevelseNummer")["time"].transform("min")
 
     array_avdeling = []
     for i, rows in df.iterrows():
@@ -53,12 +54,12 @@ def run_etl_suksesskriterier():
 
     df["avdeling"] = array_avdeling
 
-    # Beholder gjeldende observasjon
+    # Beholder gjeldende observasjon på dokument-nivå
     df["sist_oppdatert"] = df.groupby("table_id")["time"].transform("max") # Beholder bare gjeldende observasjoner
     df = df[df["sist_oppdatert"] == df["time"]]
 
     # Beholder bare kolonner vi skal ha med videre
-    df = df[["table_id", "irrelevansFor", "etterlevelseNummer", "tittel", "avdeling", "sist_oppdatert"]].copy()
+    df = df[["table_id", "irrelevansFor", "etterlevelseNummer", "tittel", "avdeling", "sist_oppdatert", "created_time_dokument"]].copy()
     df.rename({"table_id": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
 
     # Merger informasjon om etterlevelsesdokumenter med informasjon om krav slik at vi får en oversikt over relevante krav per etterlevelsesdokument
@@ -146,8 +147,10 @@ def run_etl_suksesskriterier():
 
     # Trenger å beholde gjeldende observasjon per suksesskriterium
     df["lastUpdated"] = df.groupby(["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon"])["time"].transform(max)
-    df = df[df["time"] == df["lastUpdated"]].copy()
+    df["siste_observasjon_krav"] = False
+    df.loc[df["time"] == df["lastUpdated"], "siste_observasjon_krav"] = True
     df.drop("suksesskriterieBegrunnelser", axis=1, inplace=True)
+    df.rename({"time": "timeEndringKrav"}, axis=1, inplace=True)
 
     # Avleder hva som er oppfylt og hva som er ferdig utfylt
     df["kravOppfylt"] = df["statusKriterium"].apply(lambda x: True if all([True if item in ["OPPFYLT", "IKKE_RELEVANT"] else False for item in x]) else False)
@@ -157,8 +160,8 @@ def run_etl_suksesskriterier():
     df = df.explode(["suksesskriterieId", "statusKriterium", "begrunnelse"]).copy()
 
     # Merger besvarelsene med oversikt over relevante krav
-    df_merged = df[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "kravOppfylt", "kravFerdigUtfylt", "suksesskriterieId", "statusKriterium", "begrunnelse", "lastUpdated"]].merge(df_relevante_krav[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId", "behovForBegrunnelse", "aktivVersjon"]].drop_duplicates(), on=["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId"], how="outer")
-    df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "tittel", "avdeling"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
+    df_merged = df[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "kravOppfylt", "kravFerdigUtfylt", "suksesskriterieId", "statusKriterium", "begrunnelse", "lastUpdated", "timeEndringKrav", "siste_observasjon_krav"]].merge(df_relevante_krav[["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId", "behovForBegrunnelse", "aktivVersjon"]].drop_duplicates(), on=["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "suksesskriterieId"], how="outer")
+    df_merged = df_merged.merge(df_relevante_krav[["etterlevelseDokumentasjonId", "etterlevelseNummer", "created_time_dokument", "tittel", "avdeling"]].drop_duplicates(), on="etterlevelseDokumentasjonId", how="outer")
     df_merged = df_merged.merge(df_relevante_krav[["kravNummer", "tema"]].drop_duplicates(), on="kravNummer")
 
     # Er en del missing etter merge
@@ -174,6 +177,9 @@ def run_etl_suksesskriterier():
 
     df_merged["version"] = datetime.now()
 
+    df_snapshot = df_merged[df_merged["siste_observasjon_krav"] == True].copy()
+    df_snapshot.drop(["siste_observasjon_krav", "created_time_dokument"], axis=1, inplace=True)
+
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
 
@@ -184,6 +190,15 @@ def run_etl_suksesskriterier():
 
     table_id = f"{project}.{dataset}.{table}"
     job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_APPEND")
+    job = client.load_table_from_dataframe(df_snapshot, table_id, job_config=job_config)
+
+    ## Tweaker litt mer på denne
+    df_merged
+
+    table = "suksesskriterier_full_audit"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
     job = client.load_table_from_dataframe(df_merged, table_id, job_config=job_config)
 
     return None
