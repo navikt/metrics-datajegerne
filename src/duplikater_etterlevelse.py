@@ -26,7 +26,7 @@ def run_etl_duplicates():
     table = "duplikater_etterlevelse"
 
     table_id = f"{project}.{dataset}.{table}"
-    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_APPEND")
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
     job = client.load_table_from_dataframe(df_to_bq, table_id, job_config=job_config)
 
     return None
