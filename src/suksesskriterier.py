@@ -150,6 +150,7 @@ def run_etl_suksesskriterier():
     df["siste_observasjon_krav"] = False
     df.loc[df["time"] == df["lastUpdated"], "siste_observasjon_krav"] = True
     df.drop("suksesskriterieBegrunnelser", axis=1, inplace=True)
+    df["time"] = df["time"].values.astype('str')
     df.rename({"time": "timeEndringKrav"}, axis=1, inplace=True)
 
     # Avleder hva som er oppfylt og hva som er ferdig utfylt
@@ -193,7 +194,6 @@ def run_etl_suksesskriterier():
     job = client.load_table_from_dataframe(df_snapshot, table_id, job_config=job_config)
 
     ## Tweaker litt mer på denne
-    df_merged
 
     table = "suksesskriterier_full_audit"
 
