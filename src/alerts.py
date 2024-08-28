@@ -19,7 +19,7 @@ def run_etl_alerts():
         etterlevelsesDokumentasjonId = rows["table_id"]
 
         len_df = 1
-        varsling = True if "varslingsadresser" in data.keys() else False
+        varsling = True if "varslingsadresser" in data.keys() and data["varslingsadresser"] is not None else False
         if varsling:
             varslingsadresser = data["varslingsadresser"]
             if varslingsadresser:
@@ -52,4 +52,7 @@ def run_etl_alerts():
     job = client.load_table_from_dataframe(df_mother, table_id, job_config=job_config)
 
     return None
+
+if __name__ == "__main__":
+    run_etl_alerts()
 
