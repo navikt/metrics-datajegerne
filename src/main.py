@@ -1,3 +1,4 @@
+
 from tema import run_etl_tema
 from prioriterte_krav import run_etl_prioriterte_krav
 from sist_oppdatert import run_etl_sist_oppdatert
@@ -11,9 +12,13 @@ from tildeltognotater import run_etl_tildelt_og_notater
 from duplikater_etterlevelse import run_etl_duplicates
 from mordokumenter import run_etl_mordokumenter
 
+from ny_etterlevelsebesvarelse import run_etl_etterlevelsebesvarelse
+
 
 
 if __name__ == "__main__":
+    run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
+    """
     run_etl_tema() # kobling mellom krav, tema og regelverk
     run_etl_prioriterte_krav() # prioriterte_krav
     run_etl_sist_oppdatert() # sist oppdatert på dokument-nivå
@@ -26,6 +31,7 @@ if __name__ == "__main__":
     run_etl_tildelt_og_notater() # tildelt til krav og notatfunksjon
     run_etl_duplicates() # for å sjekke duplikater i etterlevelse
     run_etl_mordokumenter() # for å følge med på hvor mange som har mordokumenter
+    """
 
     print("Jobben kjørt!")
 
