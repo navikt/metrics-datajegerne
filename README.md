@@ -4,7 +4,7 @@ Henter og transformerer data fra Støtte til Etterlevelse.
 
 Dataene brukes til å forstå hvordan folk bruker verktøyet.
 
-Data fra Postgres i Etterlevelse lastet til "staging" med scheduled query. 
+Data fra Postgres i Etterlevelse transformeres og lastes til "staging" med scheduled query. 
 Jobbene henter data fra følgende tabeller:
 - Generic storage
 - codelist
@@ -16,6 +16,7 @@ Modellen ser sånn ut:
 erDiagram
     stage_besvarelse }|--|{ stage_dokument : etterlevelseDokumentasjonId
     stage_besvarelse }|--|| stage_krav : kravNummer
+    stage_meldinger }|--|| stage_krav: kravNummer
 
     stage_besvarelse {
         string etterlevelseDokumentasjonId
@@ -35,5 +36,9 @@ erDiagram
         string regelverk
         string underavdeling
 
+    }    
+    stage_meldinger {
+        int kravNummer
+        string se_BigQuery
     }
 ```
