@@ -30,7 +30,7 @@ def run_etl_tema():
 
     project = "teamdatajegerne-prod-c8b1"
     dataset = "etterlevelse"
-    table = "krav_tema"
+    table = "stage_krav"
 
     table_id = f"{project}.{dataset}.{table}"
     job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_APPEND")

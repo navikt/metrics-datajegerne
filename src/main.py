@@ -1,23 +1,13 @@
-
-from tema import run_etl_tema
-from prioriterte_krav import run_etl_prioriterte_krav
-from sist_oppdatert import run_etl_sist_oppdatert
-from alerts import run_etl_alerts
-from risikoeier import run_etl_risikoeier
-from beskrivelser import run_etl_beskrivelser
-from suksesskriterier import run_etl_suksesskriterier
-from websak import run_etl_websak
-from spoersmaalogsvar import run_etl_spoersmaal_og_svar
-from tildeltognotater import run_etl_tildelt_og_notater
-from duplikater_etterlevelse import run_etl_duplicates
-from mordokumenter import run_etl_mordokumenter
-
 from ny_etterlevelsebesvarelse import run_etl_etterlevelsebesvarelse
+from ny_krav import run_etl_tema
+from ny_etterlevelsedokument import run_etl_dokumenter
 
 
 
 if __name__ == "__main__":
     run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
+    run_etl_dokumenter() # Dokumentegenskaper
+    run_etl_tema() # krav fordelt på tema
     """
     run_etl_tema() # kobling mellom krav, tema og regelverk
     run_etl_prioriterte_krav() # prioriterte_krav

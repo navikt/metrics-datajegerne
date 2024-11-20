@@ -114,7 +114,7 @@ def run_etl_etterlevelsebesvarelse():
 
     project = "teamdatajegerne-prod-c8b1"
     dataset = "etterlevelse"
-    table = "besvarelser"
+    table = "stage_besvarelser"
 
     table_id = f"{project}.{dataset}.{table}"
     job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
