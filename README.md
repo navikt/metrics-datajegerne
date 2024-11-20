@@ -9,3 +9,13 @@ Jobbene henter data fra følgende tabeller:
 - Generic storage
 - codelist
 - audit version
+
+Modellen ser sånn ut:
+
+```mermaid
+  graph TD;
+      A-->B;
+      A-->C;
+      B-->D;
+      C-->D;
+```
