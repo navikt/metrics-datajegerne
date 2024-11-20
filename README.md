@@ -17,6 +17,9 @@ erDiagram
     stage_besvarelse }|--|{ stage_dokument : etterlevelseDokumentasjonId
     stage_besvarelse }|--|| stage_krav : kravNummer
     stage_meldinger }|--|| stage_krav: kravNummer
+    stage_relasjoner }|--|{ stage_dokument: EtterlevelseDokumentasjonIdFra
+    stage_relasjoner }|--|{ stage_dokument: EtterlevelseDokumentasjonIdTil
+    
 
     stage_besvarelse {
         string etterlevelseDokumentasjonId
@@ -40,5 +43,11 @@ erDiagram
     stage_meldinger {
         int kravNummer
         string se_BigQuery
+    }
+
+    stage_relasjoner {
+        int etterlevelseDokumentasjonIdFra
+        int etterlevelseDokumentasjonIdTil
+        string relationType
     }
 ```
