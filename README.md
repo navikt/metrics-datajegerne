@@ -13,9 +13,27 @@ Jobbene henter data fra følgende tabeller:
 Modellen ser sånn ut:
 
 ```mermaid
-  graph TD;
-      A-->B;
-      A-->C;
-      B-->D;
-      C-->D;
+erDiagram
+    stage_besvarelse }|--|{ stage_dokument : etterlevelseDokumentasjonId
+    stage_besvarelse }|--|| stage_krav : kravNummer
+
+    stage_besvarelse {
+        string etterlevelseDokumentasjonId
+        int kravNummer
+        int suksesskriterieId
+        string aktivRad
+        string se_BigQuery
+    }
+    stage_dokument {
+        string etterlevelseDokumentasjonId
+        string aktivRad
+        string se_BigQuery
+    }
+    stage_krav {
+        int kravNummer
+        string tema
+        string regelverk
+        string underavdeling
+
+    }
 ```
