@@ -1,17 +1,25 @@
-from ny_etterlevelsebesvarelse import run_etl_etterlevelsebesvarelse
-from ny_krav import run_etl_tema
-from ny_etterlevelsedokument import run_etl_dokumenter
-from ny_meldinger import run_etl_spoersmaal_og_svar
-from ny_relasjoner import run_etl_relasjoner
+from stage_etterlevelsebesvarelse import run_etl_etterlevelsebesvarelse
+from stage_krav import run_etl_tema
+from stage_etterlevelsedokument import run_etl_dokumenter
+from stage_meldinger import run_etl_spoersmaal_og_svar
+from stage_relasjoner import run_etl_relasjoner
+from stage_tildeltognotater import run_etl_tildelt_og_notater
 
 
 
 if __name__ == "__main__":
+
+    # Flytting og transformering av data fra kilde
     run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
     run_etl_dokumenter() # Dokumentegenskaper
     run_etl_tema() # krav fordelt på tema
     run_etl_spoersmaal_og_svar() # spørsmål og svar til kraveier
     run_etl_relasjoner() # koblinger mellom dokumenter
+    run_etl_tildelt_og_notater() # Viser hvilke krav som er tildelt til hvem og hvor notater er skrevet
+
+
+    # Videre transformering i python siden vi ikke orker å gjøre alt i SQL
+
     """
     run_etl_tema() # kobling mellom krav, tema og regelverk
     run_etl_prioriterte_krav() # prioriterte_krav

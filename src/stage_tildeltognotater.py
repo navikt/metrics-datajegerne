@@ -26,10 +26,10 @@ def run_etl_tildelt_og_notater():
         else:
             print("This is weird")
 
-    df["dokument_id"] = id_list
+    df["etterlevelseDokumentasjonId"] = id_list
 
     # Beholder kun disse kolonnene
-    df = df[["dokument_id", "table_id", "time", "notater", "tildeltMed", "kravNummer"]]
+    df = df[["etterlevelseDokumentasjonId", "table_id", "time", "notater", "tildeltMed", "kravNummer"]]
 
     # Kobler sammen med tema
     df_tema = pandas_gbq.read_gbq("SELECT distinct kravNummer, tema FROM `teamdatajegerne-prod-c8b1.metrics.krav_tema`", "teamdatajegerne-prod-c8b1")
@@ -44,7 +44,7 @@ def run_etl_tildelt_og_notater():
 
 
     project = "teamdatajegerne-prod-c8b1"
-    dataset = "metrics"
+    dataset = "etterlevelse"
     table = "notaterOgTildelt"
 
     table_id = f"{project}.{dataset}.{table}"
