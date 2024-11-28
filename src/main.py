@@ -5,6 +5,9 @@ from stage_meldinger import run_etl_spoersmaal_og_svar
 from stage_relasjoner import run_etl_relasjoner
 from stage_tildeltognotater import run_etl_tildelt_og_notater
 
+# Datasets
+from datasets import run_etl_beskrivelser_datasett
+
 
 
 if __name__ == "__main__":
@@ -19,6 +22,7 @@ if __name__ == "__main__":
 
 
     # Videre transformering i python siden vi ikke orker å gjøre alt i SQL: Dette blir datasett
+    run_etl_beskrivelser_datasett()
 
     """
     run_etl_tema() # kobling mellom krav, tema og regelverk
