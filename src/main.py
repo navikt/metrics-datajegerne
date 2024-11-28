@@ -18,7 +18,7 @@ if __name__ == "__main__":
     run_etl_tildelt_og_notater() # Viser hvilke krav som er tildelt til hvem og hvor notater er skrevet
 
 
-    # Videre transformering i python siden vi ikke orker å gjøre alt i SQL
+    # Videre transformering i python siden vi ikke orker å gjøre alt i SQL: Dette blir datasett
 
     """
     run_etl_tema() # kobling mellom krav, tema og regelverk

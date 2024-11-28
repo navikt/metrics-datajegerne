@@ -17,14 +17,14 @@ def run_etl_relasjoner():
     for col in cols_to_keep:
         df[col] = df["data"].apply(lambda x: x[col])
 
+    df = df[cols_to_keep]
+
     # Endrer navn på kolonner
     rename_dict = {
         "toDocument": "etterlevelseDokumentasjonIdTil",
         "fromDocument": "etterlevelseDokumentasjonIdFra"
     }
     df.rename(rename_dict, axis=1, inplace=True)
-
-    df = df[cols_to_keep]
 
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")

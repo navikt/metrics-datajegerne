@@ -15,7 +15,7 @@ def run_etl_dokumenter():
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
     # Henter ut data fra json
-    cols_to_keep = ["id", "title", "etterlevelseNummer", "teams", "irrelevansFor", "behandlingIds", "beskrivelse", "prioritertKravNummer", "risikoeiere", "forGjenbruk", "gjenbrukBeskrivelse", "tilgjengeligForGjenbruk", "resources"]
+    cols_to_keep = ["id", "title", "etterlevelseNummer", "teams", "irrelevansFor", "varslingsadresser", "behandlingIds", "beskrivelse", "prioritertKravNummer", "risikoeiere", "forGjenbruk", "gjenbrukBeskrivelse", "tilgjengeligForGjenbruk", "resources"]
     for col in cols_to_keep:
         if col == "id":
             df[col] = df["data"].apply(lambda x: x[col])
