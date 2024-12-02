@@ -49,6 +49,37 @@ def run_etl_beskrivelser_datasett():
 
 
 def run_etl_datasett_beskrivelser():
+    # Henter inn data
+    df = pandas_gbq.read_gbq("SELECT etterlevelseDokumentasjonId, beskrivelse, time, aktivRad FROM `teamdatajegerne-prod-c8b1.etterlevelse.stage_dokument`", "teamdatajegerne-prod-c8b1")
+
+    # Merker dokumenter basert på om de har en beskrivelse eller ikke
+    df["harBeskrivelse"] = False
+    df.loc[(~df["beskrivelse"].isnull()) & (df["beskrivelse"].str.len() > 0), "harBeskrivelse"] = True
+
+    # Finner tidspunktet da dokumentet først tok i bruk prioritert kravliste
+    df["minTid"] = df.groupby(["etterlevelseDokumentasjonId", "harBeskrivelse"])["time"].transform(np.min)
+
+    # Beholder kun gjeldende observasjon og de som faktisk bruker featuren
+    df = df.query("aktivRad == True and harBeskrivelse == True").copy()
+
+    # Finner antall dokumenter som bruker featuren plottet over tid
+    df.sort_values(by="minTid", ascending=True, inplace=True)
+    df["antallDokumenterMedBeskrivelset"] = df["minTid"].rank()
+
+    # Finner også antall prioriterte krav *i dag* for dokumenter som bruker denne featuren
+    df["antallTegnBeskrivelse"] = df["beskrivelse"].str.len()
+
+    # Skriver til BQ
+    client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
+
+    project = "teamdatajegerne-prod-c8b1"
+    dataset = "etterlevelse"
+    table = "ds_beskrivelser"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+
     return None
 
 

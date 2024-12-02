@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # Videre transformering i python siden vi ikke orker å gjøre alt i SQL: Dette blir datasett
     run_etl_beskrivelser_datasett()
     run_etl_datasett_prioritertlist()
-    
+
 
     """
     run_etl_tema() # kobling mellom krav, tema og regelverk
