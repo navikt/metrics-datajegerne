@@ -48,4 +48,45 @@ def run_etl_beskrivelser_datasett():
     return None
 
 
-def run_etl_beskrivelser_datasett():
+def run_etl_datasett_beskrivelser():
+    return None
+
+
+def run_etl_datasett_risikoeier():
+    return None
+
+
+def run_etl_datasett_prioritertlist():
+    df = pandas_gbq.read_gbq("SELECT etterlevelseDokumentasjonId, prioritertKravNummer, time, aktivRad FROM `teamdatajegerne-prod-c8b1.etterlevelse.stage_dokument`", "teamdatajegerne-prod-c8b1")
+
+    df["harPrioritertKravNummer"] = False
+    df.loc[(~df["prioritertKravNummer"].isnull()) & (df["prioritertKravNummer"].apply(lambda x: len(x)) > 0), "harPrioritertKravNummer"] = True
+
+    # Finner tidspunktet da dokumentet først tok i bruk prioritert kravliste
+    df["minTid"] = df.groupby(["etterlevelseDokumentasjonId", "harPrioritertKravNummer"])["time"].transform(np.min)
+
+    # Beholder kun gjeldende observasjon og de som faktisk bruker featuren
+    df = df.query("aktivRad == True and harPrioritertKravNummer == True").copy()
+
+    # Finner antall dokumenter som bruker featuren plottet over tid
+    df.sort_values(by="minTid", ascending=True, inplace=True)
+    df["antallDokumenterMedPrioritertKravlist"] = df["minTid"].rank()
+
+    # Finner også antall prioriterte krav *i dag* for dokumenter som bruker denne featuren
+    df["antallPrioriterteKrav"] = df["prioritertKravNummer"].apply(lambda x: len(x))
+
+    # Skriver til BQ
+    client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
+
+    project = "teamdatajegerne-prod-c8b1"
+    dataset = "etterlevelse"
+    table = "ds_prioriterte_krav"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+
+    return None
+
+def run_etl_datasett_mordokumenter():
+    return None
