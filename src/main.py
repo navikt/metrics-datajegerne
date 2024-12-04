@@ -6,7 +6,7 @@ from stage_relasjoner import run_etl_relasjoner
 from stage_tildeltognotater import run_etl_tildelt_og_notater
 
 # Datasets
-from datasets import run_etl_beskrivelser_datasett, run_etl_datasett_prioritertlist
+from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser, run_etl_datasett_prioritertlist, run_etl_datasett_gjenbruk
 
 
 
@@ -21,9 +21,11 @@ if __name__ == "__main__":
     run_etl_tildelt_og_notater() # Viser hvilke krav som er tildelt til hvem og hvor notater er skrevet
 
 
-    # Videre transformering i python siden vi ikke orker å gjøre alt i SQL: Dette blir datasett
-    run_etl_beskrivelser_datasett()
+    # Videre transformering i python siden vi ikke orker å gjøre alt i SQL: Dette blir egne tabeller som blir datasett på Markedsplassen
+    run_etl_datasett_varslinger()
+    run_etl_datasett_beskrivelser()
     run_etl_datasett_prioritertlist()
+    run_etl_datasett_gjenbruk()
 
 
     """

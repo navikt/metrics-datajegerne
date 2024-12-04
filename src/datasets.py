@@ -10,7 +10,7 @@ from google.cloud import bigquery
 project = "teamdatajegerne-prod-c8b1"
 dataset = "etterlevelse"
 
-def run_etl_beskrivelser_datasett():
+def run_etl_datasett_varslinger():
 
     df = pandas_gbq.read_gbq("SELECT etterlevelseDokumentasjonId, time, varslingsadresser, aktivRad FROM `teamdatajegerne-prod-c8b1.etterlevelse.stage_dokument`", "teamdatajegerne-prod-c8b1")
 
@@ -120,33 +120,43 @@ def run_etl_datasett_prioritertlist():
     return None
 
 def run_etl_datasett_gjenbruk():
-# Henter inn data
-df = pandas_gbq.read_gbq("SELECT etterlevelseDokumentasjonId, forGjenbruk, gjenbrukBeskrivelse, tilgjengeligForGjenbruk, aktivRad, time FROM `teamdatajegerne-prod-c8b1.etterlevelse.stage_dokument`", "teamdatajegerne-prod-c8b1")
+    # Henter inn data
+    df = pandas_gbq.read_gbq("SELECT etterlevelseDokumentasjonId, forGjenbruk, gjenbrukBeskrivelse, tilgjengeligForGjenbruk, aktivRad, time FROM `teamdatajegerne-prod-c8b1.etterlevelse.stage_dokument`", "teamdatajegerne-prod-c8b1")
 
-# Filtrerer så vi kun beholder observasjoner der dokumentet er vurdert eller åpnet for gjenbruk
-df = df.query("forGjenbruk == True")
+    # Filtrerer så vi kun beholder observasjoner der dokumentet er vurdert eller åpnet for gjenbruk
+    df = df.query("forGjenbruk == True")
 
-# Merker dokumenter basert på om de har en beskrivelse eller ikke
-relevant_columns = ["forGjenbruk", "tilgjengeligForGjenbruk"]
-for col in relevant_columns:
-    # Finner tidspunktet da dokumentet først tok i bruk prioritert kravliste
-    minTidCol = f"{col}MinTid"
-    df[minTidCol] = df.groupby(["etterlevelseDokumentasjonId", col])["time"].transform(np.min)
-
-
-# Beholder kun gjeldende observasjon
-df = df.query("aktivRad == True")
-
-for col in relevant_columns:
-    minTidCol = f"{col}MinTid"
-    df.sort_values(by=minTidCol, ascending=True, inplace=True)
-    df["help"] = 0
-    df.loc[df[col] == True, "help"] = 1
-    df[f"antallDokumenter{col}"] = df["help"].cumsum()
-    df.drop("help", axis=1, inplace=True)
+    # Merker dokumenter basert på om de har en beskrivelse eller ikke
+    relevant_columns = ["forGjenbruk", "tilgjengeligForGjenbruk"]
+    for col in relevant_columns:
+        # Finner tidspunktet da dokumentet først tok i bruk prioritert kravliste
+        minTidCol = f"{col}MinTid"
+        df[minTidCol] = df.groupby(["etterlevelseDokumentasjonId", col])["time"].transform(np.min)
 
 
-# Finner også antall tegn i gjenbruksbeskrivelsen *i dag* for dokumenter som bruker denne featuren
-df["antallTegnGjenbrukBeskrivelse"] = df["gjenbrukBeskrivelse"].str.len()
+    # Beholder kun gjeldende observasjon
+    df = df.query("aktivRad == True")
 
+    for col in relevant_columns:
+        minTidCol = f"{col}MinTid"
+        df.sort_values(by=minTidCol, ascending=True, inplace=True)
+        df["help"] = 0
+        df.loc[df[col] == True, "help"] = 1
+        df[f"antallDokumenter{col}"] = df["help"].cumsum()
+        df.drop("help", axis=1, inplace=True)
+
+
+    # Finner også antall tegn i gjenbruksbeskrivelsen *i dag* for dokumenter som bruker denne featuren
+    df["antallTegnGjenbrukBeskrivelse"] = df["gjenbrukBeskrivelse"].str.len()
+
+    # Skriver til BQ
+    client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
+
+    project = "teamdatajegerne-prod-c8b1"
+    dataset = "etterlevelse"
+    table = "ds_gjenbruk"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
     return None
