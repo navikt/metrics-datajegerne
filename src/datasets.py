@@ -119,5 +119,34 @@ def run_etl_datasett_prioritertlist():
 
     return None
 
-def run_etl_datasett_mordokumenter():
+def run_etl_datasett_gjenbruk():
+# Henter inn data
+df = pandas_gbq.read_gbq("SELECT etterlevelseDokumentasjonId, forGjenbruk, gjenbrukBeskrivelse, tilgjengeligForGjenbruk, aktivRad, time FROM `teamdatajegerne-prod-c8b1.etterlevelse.stage_dokument`", "teamdatajegerne-prod-c8b1")
+
+# Filtrerer så vi kun beholder observasjoner der dokumentet er vurdert eller åpnet for gjenbruk
+df = df.query("forGjenbruk == True")
+
+# Merker dokumenter basert på om de har en beskrivelse eller ikke
+relevant_columns = ["forGjenbruk", "tilgjengeligForGjenbruk"]
+for col in relevant_columns:
+    # Finner tidspunktet da dokumentet først tok i bruk prioritert kravliste
+    minTidCol = f"{col}MinTid"
+    df[minTidCol] = df.groupby(["etterlevelseDokumentasjonId", col])["time"].transform(np.min)
+
+
+# Beholder kun gjeldende observasjon
+df = df.query("aktivRad == True")
+
+for col in relevant_columns:
+    minTidCol = f"{col}MinTid"
+    df.sort_values(by=minTidCol, ascending=True, inplace=True)
+    df["help"] = 0
+    df.loc[df[col] == True, "help"] = 1
+    df[f"antallDokumenter{col}"] = df["help"].cumsum()
+    df.drop("help", axis=1, inplace=True)
+
+
+# Finner også antall tegn i gjenbruksbeskrivelsen *i dag* for dokumenter som bruker denne featuren
+df["antallTegnGjenbrukBeskrivelse"] = df["gjenbrukBeskrivelse"].str.len()
+
     return None
