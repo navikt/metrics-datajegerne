@@ -78,6 +78,13 @@ def run_etl_dokumenter():
     #... og merger så vi har relevante krav og antall relevante krav som egenskaper knyttet til dokumentet, på lik linje med andre egenskaper
     df = df.merge(df_krav, on=["etterlevelseDokumentasjonId", "time"])
 
+    # Merker også hvilke dokumenter som er slettet
+    sql = "select * from `teamdatajegerne-prod-c8b1.metrics.raw_generic_storage` where type = 'EtterlevelseDokumentasjon'"
+    df_gs = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1")
+    etterlevelseDokumentasjonIdIkkeSlettet = df_gs["id"]
+    df["slettet"] = False
+    df.loc[~df["etterlevelseDokumentasjonId"].isin(etterlevelseDokumentasjonIdIkkeSlettet), "slettet"] = True
+
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
 
