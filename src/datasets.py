@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 
 import pandas as pd
 import numpy as np
@@ -155,6 +156,40 @@ def run_etl_datasett_gjenbruk():
     project = "teamdatajegerne-prod-c8b1"
     dataset = "etterlevelse"
     table = "ds_gjenbruk"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+    return None
+
+def run_etl_sist_oppdatert():
+    sql = "select distinct etterlevelseDokumentasjonId, DATE(time) as date, DATETIME(time) as datetime from `teamdatajegerne-prod-c8b1.etterlevelse.stage_besvarelser` where etterlevelseDokumentasjonId is not null"
+    df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1")
+    df.drop_duplicates(subset=["etterlevelseDokumentasjonId", "date"], inplace=True)
+
+    # Må sette en maks-verdi for dokumenter som ikke er oppdatert i dag
+    etterlevelseDokumentasjonIdOppdatertIdag = df.loc[df["date"] == datetime.now(), "etterlevelseDokumentasjonId"]
+    df_to_append = df.loc[~df["etterlevelseDokumentasjonId"].isin(etterlevelseDokumentasjonIdOppdatertIdag), ["etterlevelseDokumentasjonId", "date"]].drop_duplicates(subset="etterlevelseDokumentasjonId")
+    df_to_append["date"] = datetime.date(datetime.now())
+    df = pd.concat([df, df_to_append])
+
+    # Så kan vi resample så vi får observasjoner per dag
+    df.set_index(pd.DatetimeIndex(df["date"]), inplace=True)
+    df = df.groupby("etterlevelseDokumentasjonId")["updated"].apply(lambda x: x.resample("D").asfreq()).reset_index()
+
+    # Så må vi beregne hvor mange dager det er siden dokumentene ble oppdatert på de forskjellige datoene
+    df["updated"] = 1
+    df["sistOppdatert"] = None
+    df.loc[df["updated"] == 1, "sistOppdatert"] = df["date"]
+    df["sistOppdatert"] = df["sistOppdatert"].ffill()
+    df["dagerSidenOppdatering"] = (df["date"] - df["sistOppdatert"]).dt.days
+
+    # Skriver til BQ
+    client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
+
+    project = "teamdatajegerne-prod-c8b1"
+    dataset = "etterlevelse"
+    table = "ds_sist_oppdatert"
 
     table_id = f"{project}.{dataset}.{table}"
     job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")

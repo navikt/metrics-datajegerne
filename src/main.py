@@ -6,7 +6,7 @@ from stage_relasjoner import run_etl_relasjoner
 from stage_tildeltognotater import run_etl_tildelt_og_notater
 
 # Datasets
-from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser, run_etl_datasett_prioritertlist, run_etl_datasett_gjenbruk
+from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser, run_etl_datasett_prioritertlist, run_etl_datasett_gjenbruk, run_etl_sist_oppdatert
 
 
 
@@ -26,6 +26,7 @@ if __name__ == "__main__":
     run_etl_datasett_beskrivelser()
     run_etl_datasett_prioritertlist()
     run_etl_datasett_gjenbruk()
+    run_etl_sist_oppdatert()
 
 
     """
