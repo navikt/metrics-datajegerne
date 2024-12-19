@@ -166,6 +166,7 @@ def run_etl_sist_oppdatert():
     sql = "select distinct etterlevelseDokumentasjonId, DATE(time) as date, DATETIME(time) as datetime from `teamdatajegerne-prod-c8b1.etterlevelse.stage_besvarelser` where etterlevelseDokumentasjonId is not null"
     df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1")
     df.drop_duplicates(subset=["etterlevelseDokumentasjonId", "date"], inplace=True)
+    df["updated"] = 1 # Trenger denne hjelpekolonnen til senere når vi skal beregne hvor lenge siden det er dokumentene ble oppdatert
 
     # Må sette en maks-verdi for dokumenter som ikke er oppdatert i dag
     etterlevelseDokumentasjonIdOppdatertIdag = df.loc[df["date"] == datetime.now(), "etterlevelseDokumentasjonId"]
@@ -178,7 +179,6 @@ def run_etl_sist_oppdatert():
     df = df.groupby("etterlevelseDokumentasjonId")["updated"].apply(lambda x: x.resample("D").asfreq()).reset_index()
 
     # Så må vi beregne hvor mange dager det er siden dokumentene ble oppdatert på de forskjellige datoene
-    df["updated"] = 1
     df["sistOppdatert"] = None
     df.loc[df["updated"] == 1, "sistOppdatert"] = df["date"]
     df["sistOppdatert"] = df["sistOppdatert"].ffill()
