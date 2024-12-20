@@ -169,10 +169,11 @@ def run_etl_sist_oppdatert():
     df["updated"] = 1 # Trenger denne hjelpekolonnen til senere når vi skal beregne hvor lenge siden det er dokumentene ble oppdatert
 
     # Må sette en maks-verdi for dokumenter som ikke er oppdatert i dag
-    etterlevelseDokumentasjonIdOppdatertIdag = df.loc[df["date"] == datetime.now(), "etterlevelseDokumentasjonId"]
+    etterlevelseDokumentasjonIdOppdatertIdag = df.loc[df["date"] == datetime.now(), "etterlevelseDokumentasjonId"].values
     df_to_append = df.loc[~df["etterlevelseDokumentasjonId"].isin(etterlevelseDokumentasjonIdOppdatertIdag), ["etterlevelseDokumentasjonId", "date"]].drop_duplicates(subset="etterlevelseDokumentasjonId")
     df_to_append["date"] = datetime.date(datetime.now())
     df = pd.concat([df, df_to_append])
+    print(df["date"].max())
 
     # Så kan vi resample så vi får observasjoner per dag
     df.set_index(pd.DatetimeIndex(df["date"]), inplace=True)
@@ -183,6 +184,12 @@ def run_etl_sist_oppdatert():
     df.loc[df["updated"] == 1, "sistOppdatert"] = df["date"]
     df["sistOppdatert"] = df["sistOppdatert"].ffill()
     df["dagerSidenOppdatering"] = (df["date"] - df["sistOppdatert"]).dt.days
+
+    # Markerer hvilke rader som er gjeldende observasjoner
+    df["aktivRad"] = False
+    df["maxDate"] = df.groupby("etterlevelseDokumentasjonId")["date"].transform(np.max)
+    df.loc[df["date"] == df["maxDate"], "aktivRad"] = True
+    df.drop("maxDate", axis=1, inplace=True)
 
     # Skriver til BQ
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
