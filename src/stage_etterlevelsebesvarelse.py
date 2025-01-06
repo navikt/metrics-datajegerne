@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pandas as pd
 import numpy as np
@@ -94,8 +95,12 @@ def run_etl_etterlevelsebesvarelse():
         df[col] = list_values
 
     # Fjerner en del kolonner
-    cols_to_keep = ["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "time", "suksesskriterieId", "suksesskriterieStatus", "begrunnelse"]
+    cols_to_keep = ["etterlevelseDokumentasjonId", "kravNummer", "kravVersjon", "time", "suksesskriterieId", "suksesskriterieStatus", "begrunnelse", "user"]
     df = df[cols_to_keep].copy()
+
+    # Anonymiserer brukere
+    mapping_dict_user = {user: str(uuid.uuid4()) for user in df["user"].unique()}
+    df["user"] = df["user"].map(mapping_dict_user)
 
     # Avleder om et krav er oppfylt eller ikke
     df["kravOppfylt"] = df.groupby(["etterlevelseDokumentasjonId", "kravNummer", "time"])["suksesskriterieStatus"].transform(lambda x: True if all([True if item == "OPPFYLT" else False for item in x ]) else False)

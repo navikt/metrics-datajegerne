@@ -33,7 +33,7 @@ def run_etl_tema():
     table = "stage_krav"
 
     table_id = f"{project}.{dataset}.{table}"
-    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_APPEND")
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
     job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
 
     return None
