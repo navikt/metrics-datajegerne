@@ -9,13 +9,13 @@ from google.cloud import bigquery
 
 
 def run_etl_etterlevelsebesvarelse():
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     # Konverterer jsonb til dict
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
     # Må ta vare på de observasjonene som er fra migrering som ble gjort august 2023
     df["version"] = df["data"].apply(lambda x: x["version"])
-    df["first_version"] = df.groupby("table_id")["version"].transform(np.min)
+    df["first_version"] = df.groupby("table_id")["version"].transform("min")
     df["createdBy"] = df["data"].apply(lambda x: x["createdBy"])
     df = df[(df["createdBy"] == "MIGRATION(ADMIN)") & (df["version"] == df["first_version"])].copy()
 
@@ -28,7 +28,7 @@ def run_etl_etterlevelsebesvarelse():
 
     # Må koble med besvarelsene
     # Første steg er å erstatte behandlingsID bakover i tid
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where lower(table_name) = 'etterlevelse'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where lower(table_name) = 'etterlevelse'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
     for col in ["behandlingId", "etterlevelseDokumentasjonId"]:
@@ -108,7 +108,7 @@ def run_etl_etterlevelsebesvarelse():
     df["kravFerdigUtfylt"] = df.groupby(["etterlevelseDokumentasjonId", "kravNummer", "time"])["suksesskriterieStatus"].transform(lambda x: True if all([True if item in ["OPPFYLT", "IKKE_RELEVANT"] else False for item in x ]) else False)
 
     #...og til slutt finner vi ut av om raden er gjeldende observasjon
-    df["kravSistOppdatert"] = df.groupby(["etterlevelseDokumentasjonId", "kravNummer"])["time"].transform(np.max)
+    df["kravSistOppdatert"] = df.groupby(["etterlevelseDokumentasjonId", "kravNummer"])["time"].transform("max")
     df["aktivRad"] = False
     df.loc[df["kravSistOppdatert"] == df["time"], "aktivRad"] = True
     df.drop("kravSistOppdatert", axis=1, inplace=True)

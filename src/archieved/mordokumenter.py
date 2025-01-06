@@ -33,7 +33,7 @@ def run_etl_mordokumenter():
 
     # Og merker aktive observasjoner siden vi har full historikk
     df["aktiv"] = False
-    df["timeMax"] = df.groupby("etterlevelseNummer")["time"].transform(np.max)
+    df["timeMax"] = df.groupby("etterlevelseNummer")["time"].transform("max")
     df.loc[df["time"] == df["timeMax"], "aktiv"] = True
 
     #...og vi skal kun ha med enkelte variabler
