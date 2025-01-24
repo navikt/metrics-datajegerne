@@ -6,7 +6,7 @@ from stage_etterlevelsedokument import run_etl_dokumenter
 from stage_meldinger import run_etl_spoersmaal_og_svar
 from stage_relasjoner import run_etl_relasjoner
 from stage_tildeltognotater import run_etl_tildelt_og_notater
-from stage_behandlingskatalogen import run_etl_behandlinger, run_etl_information_types, run_etl_legal_bases
+from stage_behandlingskatalogen import run_etl_behandlinger, run_etl_information_types, run_etl_legal_bases, run_etl_systems, run_etl_dataprocessors
 
 # Datasets
 from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser, run_etl_datasett_prioritertlist, run_etl_datasett_gjenbruk, run_etl_sist_oppdatert
@@ -23,7 +23,9 @@ if __name__ == "__main__":
     # Flytting og transformering av data fra kilde
     #run_etl_behandlinger() # Behandlinger
     #run_etl_information_types() # Knytning mellom policies og information types
-    run_etl_legal_bases() # Behandlingsgrunnlag med beskrivelser
+    #run_etl_legal_bases() # Behandlingsgrunnlag med beskrivelser
+    run_etl_systems() # systemer brukt i behandling
+    run_etl_dataprocessors() # databehandlere
 
     1/0
     run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere

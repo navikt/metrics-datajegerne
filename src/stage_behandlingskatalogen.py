@@ -31,14 +31,17 @@ def run_etl_behandlinger():
     df["policies"] = df["data"].apply(lambda x: x["policies"])
     df_pol = df[["behandlingsId", "policies", "time", "aktivObservasjon"]].explode("policies")
     df_pol["policyId"] = df_pol["policies"].apply(lambda x: x["id"] if pd.notnull(x) and "id" in x else None)
-    df_dict["stage_bridge_policy_behandling"] = df_pol[["behandlingsId", "time", "aktivObservasjon", "policyId"]]
+    df_dict["stage_bridge_policy_behandling"] = df_pol[["behandlingsId", "time", "aktivObservasjon", "policyId"]].copy()
 
     # Databehandlere: Dette blir en koblingstabell mellom behandlinger og databehandlere
     df["dataProcessing"] = df["data"].apply(lambda x: x["data"]["dataProcessing"] if "dataProcessing" in x["data"] else None)
     df["processors"] = df["dataProcessing"].apply(lambda x: x["processors"] if x and "processors" in x else None)
-    df_dp = df[["behandlingsId", "time", "aktivObservasjon", "processors"]]
+    df_dp = df[["behandlingsId", "time", "aktivObservasjon", "processors"]].copy()
     df_dp = df_dp.explode("processors") # <- Tabell klar til å skrives
     df_dict["stage_bridge_databehandler_behandling"] = df_dp
+
+
+    # Til slutt må vi også få ut mer info om behandlinger
 
 
     # Skrive til BigQuery
@@ -63,6 +66,7 @@ def run_etl_legal_bases():
     df_raw["maxTime"] = df_raw.groupby("table_id")["time"].transform("max")
     df_raw["aktivObservasjon"] = False
     df_raw.loc[df_raw["time"] == df_raw["maxTime"], "aktivObservasjon"] = True
+    df_raw = df_raw[df_raw["aktivObservasjon"] == True].copy() # Beholder kun aktive observasjoner. Driter i alt annet
 
     # Filtrerer ned tabllen
     df = df_raw[df_raw["table_name"] == "PROCESS"].copy()
@@ -70,13 +74,10 @@ def run_etl_legal_bases():
     # Renamer litt
     df.rename({"table_id": "behandlingsId"}, axis=1, inplace=True)
 
-
     # Graver ut behandlinsgrunnlagene
     df["legalBases"] = df["data"].apply(lambda x: x["data"]["legalBases"] if "legalBases" in x["data"] else None)
 
     df = df[["time", "aktivObservasjon", "behandlingsId", "action", "legalBases"]].copy()
-
-    # PÅ noe om slettet?
 
     df = df.explode("legalBases")
 
@@ -87,19 +88,15 @@ def run_etl_legal_bases():
 
     # Kobler inn mer informasjon om behandlingsgrunnlagene: Fra codelist
     df_code = df_raw[df_raw["table_name"] == "CODELIST"].copy()
-    print(len(df_code))
     cols_to_unpack = ["list", "code", "shortName", "description"]
     for col in cols_to_unpack:
         df_code[col] = df_code["data"].apply(lambda x: x[col])
     df_code = df_code[(df_code["list"].isin(["GDPR_ARTICLE", "NATIONAL_LAW"])) & (df_code["aktivObservasjon"])].copy()
-    print(len(df_code))
 
     df_code = df_code[cols_to_unpack].copy()
     df_code.drop("list", axis=1, inplace=True)
 
     # Merger først inn info om GDPR
-    print(df["gdpr"].unique())
-    print(df_code["code"].unique())
     df = df.merge(df_code, how="left", left_on="gdpr", right_on="code")
     df.rename({"shortName": "shortNameGDPR", "description": "descriptionGDPR"}, axis=1, inplace=True)
     df.drop("code", axis=1, inplace=True)
@@ -121,8 +118,6 @@ def run_etl_legal_bases():
     job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
 
     return None
-
-
 
 
 def run_etl_information_types():
@@ -173,8 +168,100 @@ def run_etl_information_types():
 
 
 def run_etl_dataprocessors():
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.behandlingskatalogen.audit_version_raw` order by time desc"
+    df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+
+    # Finner aktiv observasjon
+    # Finner gjeldende observasjon
+    df["maxTime"] = df.groupby("table_id")["time"].transform("max")
+    df["aktivObservasjon"] = False
+    df.loc[df["time"] == df["maxTime"], "aktivObservasjon"] = True
+    df = df[(df["aktivObservasjon"] == True) & (df["action"] != "DELETE")].copy()
+
+    # Graver ut json
+    df["data"] = df["data"].apply(lambda x: json.loads(x))
+
+    # Så gyver vi løs på databehandlerne
+    df_db = df[df["table_name"] == "PROCESSOR"].copy()
+    cols_to_unpack = ["name", "note", "countries", "outsideEU", "transferGroundsOutsideEU"]
+    for col in cols_to_unpack:
+        df_db[col] = df_db["data"].apply(lambda x: x["data"][col])
+
+    df_db.rename({"table_id": "dataprocessorId"}, axis=1, inplace=True)
+
+    df_db = df_db[["dataprocessorId"] + cols_to_unpack]
+
+    # Så må vi ha en kobling til behandlingene
+    df_behandling = df[df["table_name"] == "PROCESS"].copy()
+    df_behandling["dataProcessing"] = df_behandling["data"].apply(lambda x: x["data"]["dataProcessing"] if "dataProcessing" in x["data"] else None)
+    df_behandling["dataprocessorId"] = df_behandling["dataProcessing"].apply(lambda x: x["processors"] if x and "processors" in x else None)
+
+    df_behandling = df_behandling[["table_id", "dataprocessorId"]].explode("dataprocessorId")
+    df_behandling.rename({"table_id": "behandlingId"}, axis=1, inplace=True)
+
+    df = df_db.merge(df_behandling, on="dataprocessorId", how="left")
+
+    # Skrive til BigQuery
+    client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
+
+    project = "teamdatajegerne-prod-c8b1"
+    dataset = "behandlinger"
+    table = "stage_dataprocessors"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+
     return None
 
+
+def run_etl_systems():
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.behandlingskatalogen.audit_version_raw` order by time desc"
+    df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+
+    # Finner aktiv observasjon
+    # Finner gjeldende observasjon
+    df["maxTime"] = df.groupby("table_id")["time"].transform("max")
+    df["aktivObservasjon"] = False
+    df.loc[df["time"] == df["maxTime"], "aktivObservasjon"] = True
+    df = df[(df["aktivObservasjon"] == True) & (df["action"] != "DELETE")].copy()
+
+    # Graver ut json
+    df["data"] = df["data"].apply(lambda x: json.loads(x))
+
+    # Så gyver vi løs på systemer
+    df_system = df[df["table_name"] == "CODELIST"].copy()
+
+    cols_to_unpack = ["list", "code", "shortName", "description"]
+    for col in cols_to_unpack:
+        df_system[col] = df_system["data"].apply(lambda x: x[col])
+
+    df_system = df_system.loc[df_system["list"] == "SYSTEM", cols_to_unpack].copy()
+
+    # Så kobler vi inn behandlinger og
+    df_behandling = df[df["table_name"] == "PROCESS"].copy()
+
+    # Finner systemer
+    df_behandling["systems"] = df_behandling["data"].apply(lambda x: x["data"]["affiliation"]["products"] if "affiliation" in x["data"] else None)
+    df_behandling = df_behandling[["table_id", "systems"]].explode("systems")
+
+    df_behandling.rename({"table_id": "behandlingId", "systems": "code"}, axis=1, inplace=True)
+
+    df = df_system.merge(df_behandling, on="code", how="left")
+
+
+    # Skrive til BigQuery
+    client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
+
+    project = "teamdatajegerne-prod-c8b1"
+    dataset = "behandlinger"
+    table = "stage_systems"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+
+    return None
 
 
 
