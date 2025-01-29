@@ -21,13 +21,12 @@ if __name__ == "__main__":
     logging.info("Jobben starter!")
 
     # Flytting og transformering av data fra kilde
-    #run_etl_behandlinger() # Behandlinger
-    #run_etl_information_types() # Knytning mellom policies og information types
-    #run_etl_legal_bases() # Behandlingsgrunnlag med beskrivelser
+    run_etl_behandlinger() # Behandlinger
+    run_etl_information_types() # Knytning mellom policies og information types
+    run_etl_legal_bases() # Behandlingsgrunnlag med beskrivelser
     run_etl_systems() # systemer brukt i behandling
     run_etl_dataprocessors() # databehandlere
 
-    1/0
     run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
     logging.info("Besvarelser kjørt!")
     run_etl_dokumenter() # Dokumentegenskaper
