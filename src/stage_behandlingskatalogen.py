@@ -29,20 +29,21 @@ def run_etl_behandlinger():
     # Graver ut av json-bloben
     # Først policies som blir en koblingstabell mellom behandlinger og policies
     df["policies"] = df["data"].apply(lambda x: x["policies"])
-    df_pol = df[["behandlingsId", "policies", "time", "aktivObservasjon"]].explode("policies")
+    df_pol = df[["behandlingsId", "policies", "time", "aktivObservasjon"]].copy()
+    df_pol = df_pol.explode("policies")
     df_pol["policyId"] = df_pol["policies"].apply(lambda x: x["id"] if pd.notnull(x) and "id" in x else None)
+    df_pol = df_pol[df_pol["aktivObservasjon"] == True]
     df_dict["stage_bridge_policy_behandling"] = df_pol[["behandlingsId", "time", "aktivObservasjon", "policyId"]].copy()
 
-    # Databehandlere: Dette blir en koblingstabell mellom behandlinger og databehandlere
-    df["dataProcessing"] = df["data"].apply(lambda x: x["data"]["dataProcessing"] if "dataProcessing" in x["data"] else None)
-    df["processors"] = df["dataProcessing"].apply(lambda x: x["processors"] if x and "processors" in x else None)
-    df_dp = df[["behandlingsId", "time", "aktivObservasjon", "processors"]].copy()
-    df_dp = df_dp.explode("processors") # <- Tabell klar til å skrives
-    df_dict["stage_bridge_databehandler_behandling"] = df_dp
-
-
     # Til slutt må vi også få ut mer info om behandlinger
+    df_beh = df.copy()
+    cols_to_keep = ["name", "number", "start", "end", "status", "purposes", "profiling", "retention", "affiliation", "description", "revisionsText", "automaticProcessing", "additionalDescription", "usesAllInformationTypes"]
+    for col in cols_to_keep:
+        df_beh[col] = df_beh["data"].apply(lambda x: x["data"][col] if col in x["data"] else None)
 
+    df_beh = df_beh[["behandlingsId", "time", "aktivObservasjon"] + cols_to_keep]
+    df_beh["created"] = df_beh.groupby("behandlingsId")["time"].transform("min")
+    df_dict["stage_behandlinger"] = df_beh
 
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")

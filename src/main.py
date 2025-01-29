@@ -26,6 +26,7 @@ if __name__ == "__main__":
     run_etl_legal_bases() # Behandlingsgrunnlag med beskrivelser
     run_etl_systems() # systemer brukt i behandling
     run_etl_dataprocessors() # databehandlere
+    logging.info("Behandlingskatalogen kjørt")
 
     run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
     logging.info("Besvarelser kjørt!")
