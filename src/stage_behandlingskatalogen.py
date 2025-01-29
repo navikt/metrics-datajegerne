@@ -41,6 +41,13 @@ def run_etl_behandlinger():
     for col in cols_to_keep:
         df_beh[col] = df_beh["data"].apply(lambda x: x["data"][col] if col in x["data"] else None)
 
+    for col in ["affiliation", "retention"]:
+        keys = df_beh["data"].values[0]["data"][col].keys()
+        for key in keys:
+            df_beh[key] = df_beh["data"].apply(lambda x: x["data"][col][key] if col in x["data"] and key in x["data"][col] else None)
+            cols_to_keep.append(key)
+        cols_to_keep.remove(col)
+
     df_beh = df_beh[["behandlingsId", "time", "aktivObservasjon"] + cols_to_keep]
     df_beh["created"] = df_beh.groupby("behandlingsId")["time"].transform("min")
     df_dict["stage_behandlinger"] = df_beh
