@@ -17,7 +17,7 @@ from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser,
 if __name__ == "__main__":
     # Setter opp logging
     logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logging.info("Jobben starter!")
 
     # Flytting og transformering av data fra kilde
@@ -53,20 +53,3 @@ if __name__ == "__main__":
     logging.info("Gjenbruk kjørt!")
     run_etl_sist_oppdatert()
     logging.info("Sist oppdatert kjørt!")
-
-
-    """
-    run_etl_tema() # kobling mellom krav, tema og regelverk
-    run_etl_prioriterte_krav() # prioriterte_krav
-    run_etl_sist_oppdatert() # sist oppdatert på dokument-nivå
-    run_etl_alerts() # alerts
-    run_etl_risikoeier() # risikoeiere
-    run_etl_beskrivelser() # beskrivelser
-    run_etl_suksesskriterier() # besvarelser
-    run_etl_websak() # arkivering
-    run_etl_spoersmaal_og_svar() # spørsmål og svar
-    run_etl_tildelt_og_notater() # tildelt til krav og notatfunksjon
-    run_etl_duplicates() # for å sjekke duplikater i etterlevelse
-    run_etl_mordokumenter() # for å følge med på hvor mange som har mordokumenter
-    """
-
