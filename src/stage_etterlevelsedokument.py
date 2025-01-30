@@ -95,4 +95,4 @@ def run_etl_dokumenter():
 
     table_id = f"{project}.{dataset}.{table}"
     job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
-    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config, wait=False)
