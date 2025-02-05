@@ -48,7 +48,7 @@ def run_etl_behandlinger():
             cols_to_keep.append(key)
         cols_to_keep.remove(col)
 
-    df_beh = df_beh[["behandlingId", "time", "aktivObservasjon"] + cols_to_keep]
+    df_beh = df_beh[["behandlingId", "time", "aktivObservasjon", "action"] + cols_to_keep]
     df_beh["created"] = df_beh.groupby("behandlingId")["time"].transform("min")
     df_dict["stage_behandlinger"] = df_beh
 
