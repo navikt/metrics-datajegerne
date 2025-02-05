@@ -13,10 +13,10 @@ def run_etl_behandlinger():
     df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
 
     # Renamer litt
-    df.rename({"table_id": "behandlingsId"}, axis=1, inplace=True)
+    df.rename({"table_id": "behandlingId"}, axis=1, inplace=True)
 
     # Finner gjeldende observasjon
-    df["maxTime"] = df.groupby("behandlingsId")["time"].transform("max")
+    df["maxTime"] = df.groupby("behandlingId")["time"].transform("max")
     df["aktivObservasjon"] = False
     df.loc[df["time"] == df["maxTime"], "aktivObservasjon"] = True
 
@@ -29,11 +29,11 @@ def run_etl_behandlinger():
     # Graver ut av json-bloben
     # Først policies som blir en koblingstabell mellom behandlinger og policies
     df["policies"] = df["data"].apply(lambda x: x["policies"])
-    df_pol = df[["behandlingsId", "policies", "time", "aktivObservasjon"]].copy()
+    df_pol = df[["behandlingId", "policies", "time", "aktivObservasjon"]].copy()
     df_pol = df_pol.explode("policies")
     df_pol["policyId"] = df_pol["policies"].apply(lambda x: x["id"] if pd.notnull(x) and "id" in x else None)
     df_pol = df_pol[df_pol["aktivObservasjon"] == True]
-    df_dict["stage_bridge_policy_behandling"] = df_pol[["behandlingsId", "time", "aktivObservasjon", "policyId"]].copy()
+    df_dict["stage_bridge_policy_behandling"] = df_pol[["behandlingId", "time", "aktivObservasjon", "policyId"]].copy()
 
     # Til slutt må vi også få ut mer info om behandlinger
     df_beh = df.copy()
@@ -48,8 +48,8 @@ def run_etl_behandlinger():
             cols_to_keep.append(key)
         cols_to_keep.remove(col)
 
-    df_beh = df_beh[["behandlingsId", "time", "aktivObservasjon"] + cols_to_keep]
-    df_beh["created"] = df_beh.groupby("behandlingsId")["time"].transform("min")
+    df_beh = df_beh[["behandlingId", "time", "aktivObservasjon"] + cols_to_keep]
+    df_beh["created"] = df_beh.groupby("behandlingId")["time"].transform("min")
     df_dict["stage_behandlinger"] = df_beh
 
     # Skrive til BigQuery
@@ -80,12 +80,12 @@ def run_etl_legal_bases():
     df = df_raw[df_raw["table_name"] == "PROCESS"].copy()
 
     # Renamer litt
-    df.rename({"table_id": "behandlingsId"}, axis=1, inplace=True)
+    df.rename({"table_id": "behandlingId"}, axis=1, inplace=True)
 
     # Graver ut behandlinsgrunnlagene
     df["legalBases"] = df["data"].apply(lambda x: x["data"]["legalBases"] if "legalBases" in x["data"] else None)
 
-    df = df[["time", "aktivObservasjon", "behandlingsId", "action", "legalBases"]].copy()
+    df = df[["time", "aktivObservasjon", "behandlingId", "action", "legalBases"]].copy()
 
     df = df.explode("legalBases")
 

@@ -85,8 +85,8 @@ def run_etl_suksesskriterier():
     for i, rows in df[df["created_by"] == "MIGRATION(ADMIN)"].iterrows():
         item = json.loads(rows["data"])
         if len(item["data"]["behandlingIds"]) > 0:
-            behandlingsId = item["data"]["behandlingIds"][0]
-            behandling_etterlevelse_mapping[behandlingsId] = item["id"]
+            behandlingId = item["data"]["behandlingIds"][0]
+            behandling_etterlevelse_mapping[behandlingId] = item["id"]
         else:
             ikke_match.append(item["id"])
 

@@ -19,7 +19,7 @@ def run_etl_etterlevelsebesvarelse():
     df["createdBy"] = df["data"].apply(lambda x: x["createdBy"])
     df = df[(df["createdBy"] == "MIGRATION(ADMIN)") & (df["version"] == df["first_version"])].copy()
 
-    # Trenger mapping mellom behandlingsId og etterlevelsesId
+    # Trenger mapping mellom behandlingId og etterlevelsesId
     df["behandlingId"] = df["data"].apply(lambda x: x["data"]["behandlingIds"])
     df["etterlevelseId"] = df["data"].apply(lambda x: x["id"])
     df = df[["behandlingId", "etterlevelseId"]]
@@ -27,7 +27,7 @@ def run_etl_etterlevelsebesvarelse():
     mapping_dict = {behandlingId: etterlevelseId for behandlingId, etterlevelseId in df.values}
 
     # Må koble med besvarelsene
-    # Første steg er å erstatte behandlingsID bakover i tid
+    # Første steg er å erstatte behandlingId bakover i tid
     df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where lower(table_name) = 'etterlevelse'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
