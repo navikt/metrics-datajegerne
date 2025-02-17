@@ -37,7 +37,7 @@ def run_etl_behandlinger():
 
     # Til slutt må vi også få ut mer info om behandlinger
     df_beh = df.copy()
-    cols_to_keep = ["name", "number", "start", "end", "status", "purposes", "profiling", "retention", "affiliation", "description", "revisionsText", "automaticProcessing", "additionalDescription", "usesAllInformationTypes"]
+    cols_to_keep = ["name", "number", "start", "end", "status", "purposes", "profiling", "retention", "affiliation", "description", "automaticProcessing", "additionalDescription", "usesAllInformationTypes"]
     for col in cols_to_keep:
         df_beh[col] = df_beh["data"].apply(lambda x: x["data"][col] if col in x["data"] else None)
 
@@ -149,6 +149,8 @@ def run_etl_information_types():
     df_pol["informationTypeId"] = df_pol["data"].apply(lambda x: x["informationTypeId"])
     df_pol["subjectCategories"] = df_pol["data"].apply(lambda x: x["data"]["subjectCategories"] if "data" in x else None)
     df_pol["documentIds"] = df_pol["data"].apply(lambda x: x["data"]["documentIds"] if "data" in x else None) # strukturendring langt tilbake i tid
+    df_pol.drop("data", axis=1, inplace=True)
+
 
     df_dict["stage_policy"] = df_pol
 

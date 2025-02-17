@@ -25,6 +25,7 @@ def run_etl_datasett_varslinger():
     # ...og denne dicten kan vi pakke ut i to kolonner: Type og adresse
     for col in ["type", "adresse"]:
         df[col] = df["varslingsadresser"].apply(lambda x: x[col] if pd.notnull(x) else None)
+    df.drop("varslingsadresser", axis=1, inplace=True)
 
     # Tidsserien
     df_timeseries = df.groupby(["etterlevelseDokumentasjonId", "harVarslingsadresse"])["time"].apply("min").reset_index().query("harVarslingsadresse == True")
