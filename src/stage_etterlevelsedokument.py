@@ -8,6 +8,7 @@ import pandas_gbq
 
 from google.cloud import bigquery
 
+
 def run_etl_dokumenter():
     # Obs: Denne serien går bare tilbake til august 2023
     df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
