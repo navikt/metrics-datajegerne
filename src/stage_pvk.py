@@ -41,8 +41,8 @@ def run_etl_pvk():
     for col in cols_to_keep:
         df_pvk[col] = df_pvk["data"].apply(lambda x: x["pvkDokumentData"][col])
     df_pvk["etterlevelseDokumentId"] = df_pvk["data"].apply(lambda x: x["etterlevelseDokumentId"])
-
-    for col in ["etterlevelseDokumentId", "time", "table_id", "aktivRad"]:
+    df_pvk["status"] = df_pvk["data"].apply(lambda x: x["status"])
+    for col in ["etterlevelseDokumentId", "time", "table_id", "status", "aktivRad"]:
         cols_to_keep.append(col)
 
     df_pvk["aktivRad"] = False
