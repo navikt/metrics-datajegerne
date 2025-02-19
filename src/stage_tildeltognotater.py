@@ -32,7 +32,7 @@ def run_etl_tildelt_og_notater():
     df = df[["etterlevelseDokumentasjonId", "table_id", "time", "notater", "tildeltMed", "kravNummer"]]
 
     # Kobler sammen med tema
-    df_tema = pandas_gbq.read_gbq("SELECT distinct kravNummer, tema FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_tema`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df_tema = pandas_gbq.read_gbq("SELECT distinct kravNummer, tema FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav_tema`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df = df.merge(df_tema, on="kravNummer", how="outer")
 
     df = df.explode("tildeltMed")

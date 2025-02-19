@@ -19,7 +19,7 @@ def run_etl_tema():
     df = df[["kravNummer", "regelverk"]].drop_duplicates().copy()
 
     # Må koble på tema og
-    df_2 = pandas_gbq.read_gbq("SELECT distinct code as regelverk, tema, underavdeling FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_tema`", "teamdatajegerne-prod-c8b1")
+    df_2 = pandas_gbq.read_gbq("select distinct regelverk, tema, underavdeling FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav_tema`", "teamdatajegerne-prod-c8b1")
 
     #Og merge
     df = df.merge(df_2, on="regelverk", how="left")

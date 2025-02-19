@@ -32,7 +32,7 @@ def run_etl_suksesskriterier():
     df_krav.drop_duplicates(inplace=True)
 
     # Trenger å knytte krav til tema
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_tema`", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav_tema`", "teamdatajegerne-prod-c8b1")
     df_krav = df_krav.merge(df[["kravNummer", "tema"]].drop_duplicates(), on="kravNummer", how="left")
     df_krav["aktivVersjon"] = True
 
