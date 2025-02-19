@@ -17,8 +17,21 @@ erDiagram
     stage_besvarelse }|--|{ stage_dokument : etterlevelseDokumentasjonId
     stage_besvarelse }|--|| stage_krav : kravNummer
     stage_meldinger }|--|| stage_krav: kravNummer
-    stage_relasjoner }|--|{ stage_dokument: EtterlevelseDokumentasjonIdFra
-    stage_relasjoner }|--|{ stage_dokument: EtterlevelseDokumentasjonIdTil
+    stage_relasjoner }|--|{ stage_dokument: etterlevelseDokumentasjonIdFra
+    stage_relasjoner }|--|{ stage_dokument: etterlevelseDokumentasjonIdTil
+
+    stage_pvk_dokument ||--|| stage_besvarelse: etterlevelseDokumentasjonId
+    stage_pvk_dokument ||--|{ stage_risikoscenario: pvkDokumentId
+    stage_pvk_dokument ||--|{ stage_tiltak: pvkDokumentId
+
+    stage_behandlinger }|--|| stage_dokument: behandlingId
+    stage_policy }|--|| stage_informationType: informationTypeId
+    stage_policy  ||--|| stage_bridge_policy_behandling: policyId
+    stage_behandlinger ||--|{  stage_bridge_policy_behandling: behandlingId
+    stage_behandlinger ||--|{  stage_dataprocessors: behandlingId
+    stage_behandlinger ||--|{  stage_systems: behandlingId
+    stage_behandlinger ||--|{  stage_behandlingsgrunnlag: behandlingId
+
     
 
     stage_besvarelse {
@@ -30,6 +43,7 @@ erDiagram
     }
     stage_dokument {
         string etterlevelseDokumentasjonId
+        array behandlingId
         string aktivRad
         string se_BigQuery
     }
@@ -46,8 +60,66 @@ erDiagram
     }
 
     stage_relasjoner {
-        int etterlevelseDokumentasjonIdFra
-        int etterlevelseDokumentasjonIdTil
+        string etterlevelseDokumentasjonIdFra
+        string etterlevelseDokumentasjonIdTil
         string relationType
+    }
+
+
+
+
+    stage_pvk_dokument {
+        string etterlevelseDokumentasjonId
+        string pvkDokumentId
+        string se_BigQuery
+    }
+
+    stage_risikoscenario {
+        string risikoscenarioId
+        string pvkDokumentId
+        string se_BigQuery
+    }
+
+    stage_tiltak {
+        string tiltakId
+        string pvkDokumentId
+        string se_BigQuery
+    }
+
+
+
+
+
+    stage_behandlinger {
+        string behandlingId
+        string se_BigQuery
+    }
+    stage_dataprocessors {
+        string dataprocessorI
+        string dbehandlingId
+        string se_BigQuery
+    }
+    stage_systems {
+        string code
+        string behandlingId
+        string se_BigQuery
+    }
+    stage_behandlingsgrunnlag {
+        string behandlingId
+        string se_BigQuery
+    }
+    stage_policy {
+        string policyId
+        string informationTypeId
+        string se_BigQuery
+    }
+    stage_bridge_policy_behandling {
+        string behandlingId
+        string policyId
+        string se_BigQuery
+    }
+    stage_informationType {
+        string informationTypeId
+        string se_BigQuery
     }
 ```
