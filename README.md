@@ -20,7 +20,7 @@ erDiagram
     stage_relasjoner }|--|{ stage_dokument: etterlevelseDokumentasjonIdFra
     stage_relasjoner }|--|{ stage_dokument: etterlevelseDokumentasjonIdTil
 
-    stage_pvk_dokument ||--|| stage_besvarelse: etterlevelseDokumentasjonId
+    stage_pvk_dokument ||--|| stage_dokument: etterlevelseDokumentasjonId
     stage_pvk_dokument ||--|{ stage_risikoscenario: pvkDokumentId
     stage_pvk_dokument ||--|{ stage_tiltak: pvkDokumentId
 
