@@ -18,5 +18,7 @@ spec:
     - description: Metrikker som viser hvordan folk bruker Støtte til Etterlevelse
       name: etterlevelse
       permission: READWRITE
-    - name: metrics
+    - name: landing_zone
+      permission: READ
+    - name: behandlinger
       permission: READ

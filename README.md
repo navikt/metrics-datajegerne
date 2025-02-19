@@ -1,16 +1,19 @@
 # Metrics Datajegerne
 
-Henter og transformerer data fra Støtte til Etterlevelse.
+Henter og transformerer data fra Støtte til Etterlevelse og Behandlingskatalogen. Dataene brukes til å forstå hvordan folk bruker verktøyene.
 
-Dataene brukes til å forstå hvordan folk bruker verktøyet.
+Alle lenkene under her er interne lenker som forutsetter tilgang til GCP-prosjektet til Datajegerne. 
 
-Data fra Postgres i Etterlevelse transformeres og lastes til "staging" med scheduled query. 
-Jobbene henter data fra følgende tabeller:
-- Generic storage
-- codelist
-- audit version
+Koden i main.py henter data fra en BigQuery-collection kalt "landing_zone": [landing_zone i BigQuery](https://console.cloud.google.com/bigquery?inv=1&invt=Abp_dA&project=teamdatajegerne-prod-c8b1&ws=!1m4!1m3!3m2!1steamdatajegerne-prod-c8b1!2slanding_zone). I landing_zone ligger data hentet fra Støtte til Etterlevelse og Behandlingskatalogen. [Federated queries som brukes til å laste data fra Postgres til BigQuery ligger her](https://console.cloud.google.com/bigquery/scheduled-queries?inv=1&invt=Abp_dA&project=teamdatajegerne-prod-c8b1).
 
-Modellen ser sånn ut:
+Tabellene bearbeides så videre til tabeller som er prefixet med "stage". Noen tabeller bearbeides videre til datasett som deles på Markedsplassen. Disse prefixes med "ds". Noen av disse datasettene er enkle views opprettet i cloud-consolet.
+
+Tabellene finner du her:
+- [Etterlevelse](https://console.cloud.google.com/bigquery?inv=1&invt=Abp_dA&project=teamdatajegerne-prod-c8b1&ws=!1m4!1m3!3m2!1steamdatajegerne-prod-c8b1!2setterlevelse)
+- [Behandlingskatalogen](https://console.cloud.google.com/bigquery?inv=1&invt=Abp_dA&project=teamdatajegerne-prod-c8b1&ws=!1m4!1m3!3m2!1steamdatajegerne-prod-c8b1!2sbehandlinger)
+
+
+Modellen ser slik ut:
 
 ```mermaid
 erDiagram
