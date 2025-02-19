@@ -8,7 +8,7 @@ from google.cloud import bigquery
 
 
 def run_etl_relasjoner():
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name ='DOCUMENT_RELATION'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name ='DOCUMENT_RELATION'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
 
     # Json-berry
     df["data"] = df["data"].apply(lambda x: json.loads(x))

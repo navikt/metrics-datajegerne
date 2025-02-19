@@ -9,7 +9,7 @@ from google.cloud import bigquery
 
 
 def run_etl_etterlevelsebesvarelse():
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     # Konverterer jsonb til dict
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
@@ -28,7 +28,7 @@ def run_etl_etterlevelsebesvarelse():
 
     # Må koble med besvarelsene
     # Første steg er å erstatte behandlingId bakover i tid
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where lower(table_name) = 'etterlevelse'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where lower(table_name) = 'etterlevelse'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
     for col in ["behandlingId", "etterlevelseDokumentasjonId"]:

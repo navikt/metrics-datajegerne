@@ -8,7 +8,7 @@ from google.cloud import bigquery
 
 def run_etl_suksesskriterier():
     # Starter med krav: Trenger dette for å beregne hva som er relevante krav
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw_krav`", "teamdatajegerne-prod-c8b1") # Kun aktive krav -- utgåtte krav vises i etterlevelsesløsningen, men er ikke med her
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav`", "teamdatajegerne-prod-c8b1") # Kun aktive krav -- utgåtte krav vises i etterlevelsesløsningen, men er ikke med her
 
     # Graver ut Json og ekspanderer
     df["relevansFor"] = df["data"].apply(lambda x: json.loads(x)["relevansFor"])
@@ -32,12 +32,12 @@ def run_etl_suksesskriterier():
     df_krav.drop_duplicates(inplace=True)
 
     # Trenger å knytte krav til tema
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.krav_tema`", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_tema`", "teamdatajegerne-prod-c8b1")
     df_krav = df_krav.merge(df[["kravNummer", "tema"]].drop_duplicates(), on="kravNummer", how="left")
     df_krav["aktivVersjon"] = True
 
     # Da har vi krav på plass! Vi graver ut litt metadata om etterlevelse
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
     df.sort_values(by="time", ascending=False, inplace=True)
 
     # Må grave ut fra json-strukturen
@@ -74,7 +74,7 @@ def run_etl_suksesskriterier():
 
 
     # Og så henter vi ut besvarelsene på hvert enkelt suksesskriterie og. Må først gjøre en mapping fra behanldingsId til etterlevelsesDokumentasjonId for "gamle" dokumenter
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
     df.sort_values(by="time", ascending=False, inplace=True)
 
     df["created_by"] = df["data"].apply(lambda x: json.loads(x)["createdBy"]) # Trenger created by for å kunne identifisere da vi migrerte data i forbindelse med "arkiktekturskifte" i august 2023
@@ -91,7 +91,7 @@ def run_etl_suksesskriterier():
             ikke_match.append(item["id"])
 
     # Leser besvarelser på suksesskriterier her
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'Etterlevelse'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'Etterlevelse'", "teamdatajegerne-prod-c8b1")
     df.sort_values(by="time", ascending=False, inplace=True)
 
     # Graver ut fra json her

@@ -7,7 +7,7 @@ import pandas_gbq
 from google.cloud import bigquery
 
 def run_etl_duplicates():
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw_generic_storage` where type = 'Etterlevelse'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_generic_storage` where type = 'Etterlevelse'", "teamdatajegerne-prod-c8b1")
     # Henter ut fra json
     for var in ["kravNummer", "kravVersjon", "etterlevelseDokumentasjonId"]:
         df[var] = df["data"].apply(lambda x: json.loads(x)[var])

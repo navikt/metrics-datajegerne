@@ -9,7 +9,7 @@ from google.cloud import bigquery
 
 
 def run_etl_behandlinger():
-    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.behandlingskatalogen.audit_version_raw` where table_name = 'PROCESS' order by time desc"
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.behandlingskatalogen_audit_version` where table_name = 'PROCESS' order by time desc"
     df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
 
     # Renamer litt
@@ -66,7 +66,7 @@ def run_etl_behandlinger():
 
 
 def run_etl_legal_bases():
-    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.behandlingskatalogen.audit_version_raw` order by time desc"
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.behandlingskatalogen_audit_version` order by time desc"
     df_raw = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df_raw["data"] = df_raw["data"].apply(lambda x: json.loads(x))
 
@@ -129,7 +129,7 @@ def run_etl_legal_bases():
 
 
 def run_etl_information_types():
-    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.behandlingskatalogen.audit_version_raw` order by time desc"
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.behandlingskatalogen_audit_version` order by time desc"
     df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
 
     df_dict = {} # Skal ta vare på to tabeller denne gangen
@@ -178,7 +178,7 @@ def run_etl_information_types():
 
 
 def run_etl_dataprocessors():
-    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.behandlingskatalogen.audit_version_raw` order by time desc"
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.behandlingskatalogen_audit_version` order by time desc"
     df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
 
     # Finner aktiv observasjon
@@ -226,7 +226,7 @@ def run_etl_dataprocessors():
 
 
 def run_etl_systems():
-    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.behandlingskatalogen.audit_version_raw` order by time desc"
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.behandlingskatalogen_audit_version` order by time desc"
     df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
 
     # Finner aktiv observasjon

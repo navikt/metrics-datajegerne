@@ -11,7 +11,7 @@ from google.cloud import bigquery
 
 def run_etl_dokumenter():
     # Obs: Denne serien går bare tilbake til august 2023
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     # Konverterer stringen til json
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
@@ -36,7 +36,7 @@ def run_etl_dokumenter():
 
     # Nærmer oss noe nå. Trenger også å finne ut hvilke krav som er relevante basert på dokumentegenskapene
     # Leser først inn krav-tabellen
-    df_krav = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw_krav`", "teamdatajegerne-prod-c8b1", progress_bar_type=None) # Kun aktive krav -- utgåtte krav vises i etterlevelsesløsningen, men er ikke med her
+    df_krav = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav`", "teamdatajegerne-prod-c8b1", progress_bar_type=None) # Kun aktive krav -- utgåtte krav vises i etterlevelsesløsningen, men er ikke med her
 
     # Hello there, json as string
     df_krav["data"] = df_krav["data"].apply(lambda x: json.loads(x))
@@ -80,7 +80,7 @@ def run_etl_dokumenter():
     df = df.merge(df_krav, on=["etterlevelseDokumentasjonId", "time"])
 
     # Merker også hvilke dokumenter som er slettet
-    sql = "select * from `teamdatajegerne-prod-c8b1.metrics.raw_generic_storage` where type = 'EtterlevelseDokumentasjon'"
+    sql = "select * from `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_generic_storage` where type = 'EtterlevelseDokumentasjon'"
     df_gs = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     etterlevelseDokumentasjonIdIkkeSlettet = df_gs["id"]
     df["slettet"] = False

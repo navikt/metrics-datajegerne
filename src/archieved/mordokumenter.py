@@ -8,7 +8,7 @@ import pandas_gbq
 from google.cloud import bigquery
 
 def run_etl_mordokumenter():
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
 
     # Henter variabler fra json-blob
     variables = ["title", "etterlevelseNummer", "forGjenbruk", "gjenbrukBeskrivelse", "tilgjengeligForGjenbruk"]

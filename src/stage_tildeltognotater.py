@@ -8,7 +8,7 @@ from google.cloud import bigquery
 
 def run_etl_tildelt_og_notater():
     # Leser data
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseMetadata'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseMetadata'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df.sort_values(by="time", ascending=False, inplace=True)
 
     # Pakker ut json-blob
@@ -32,7 +32,7 @@ def run_etl_tildelt_og_notater():
     df = df[["etterlevelseDokumentasjonId", "table_id", "time", "notater", "tildeltMed", "kravNummer"]]
 
     # Kobler sammen med tema
-    df_tema = pandas_gbq.read_gbq("SELECT distinct kravNummer, tema FROM `teamdatajegerne-prod-c8b1.metrics.krav_tema`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df_tema = pandas_gbq.read_gbq("SELECT distinct kravNummer, tema FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_tema`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df = df.merge(df_tema, on="kravNummer", how="outer")
 
     df = df.explode("tildeltMed")

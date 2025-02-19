@@ -8,7 +8,7 @@ from google.cloud import bigquery
 
 def run_etl_risikoeier():
     # Leser audit-data
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1")
     df.sort_values(by="time", ascending=False, inplace=True)
 
     # Pakker ut json-blob

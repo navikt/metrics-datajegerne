@@ -11,7 +11,7 @@ from google.cloud import bigquery
 
 def run_etl_pvk():
     # Leser data
-    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.metrics.raw` where table_name in ('TILTAK', 'RISIKOSCENARIO', 'PVK_DOKUMENT')"
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name in ('TILTAK', 'RISIKOSCENARIO', 'PVK_DOKUMENT')"
     df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df["data"] = df["data"].apply(lambda x: json.loads(x))
     df["maxTime"] = df.groupby("table_id")["time"].transform("max")
