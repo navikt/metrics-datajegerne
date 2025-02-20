@@ -11,10 +11,12 @@ spec:
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
   concurrencyPolicy: Forbid
-  backoffLimit: 1
+  backoffLimit: 6
   resources:
     requests:
       memory: 512Mi
+  liveness:
+    periodSeconds: 60
 
   gcp:
     bigQueryDatasets:
