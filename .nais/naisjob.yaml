@@ -14,7 +14,7 @@ spec:
   backoffLimit: 1
   resources:
     requests:
-      memory: 1024Mi
+      memory: 1Gi
 
   gcp:
     bigQueryDatasets:
