@@ -18,7 +18,7 @@ from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser,
 if __name__ == "__main__":
     # Setter opp logging
     logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.ERROR)
+    logging.basicConfig(level=logging.DEBUG)
     logging.info("Jobben starter!")
 
     # Flytting og transformering av data fra kilde
