@@ -12,6 +12,9 @@ spec:
   successfulJobsHistoryLimit: 1
   concurrencyPolicy: Forbid
   backoffLimit: 1
+  resources:
+    requests:
+      memory: 1024Mi
 
   gcp:
     bigQueryDatasets:
