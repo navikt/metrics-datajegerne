@@ -21,4 +21,4 @@ spec:
     - name: landing_zone
       permission: READ
     - name: behandlinger
-      permission: READ
+      permission: READWRITE
