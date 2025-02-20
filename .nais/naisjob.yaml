@@ -15,8 +15,6 @@ spec:
   resources:
     requests:
       memory: 512Mi
-  liveness:
-    periodSeconds: 60
 
   gcp:
     bigQueryDatasets:
