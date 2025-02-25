@@ -47,6 +47,8 @@ def run_etl_behandlinger():
             df_beh[key] = df_beh["data"].apply(lambda x: x["data"][col][key] if col in x["data"] and key in x["data"][col] else None)
             cols_to_keep.append(key)
         cols_to_keep.remove(col)
+    df_beh["needForDpia"] = df_beh["data"].apply(lambda x: x["data"]["dpia"]["needForDpia"] if "dpia" in x["data"] else None)
+    cols_to_keep.append("needForDpia")
 
     df_beh = df_beh[["behandlingId", "time", "aktivObservasjon", "action"] + cols_to_keep]
     df_beh["created"] = df_beh.groupby("behandlingId")["time"].transform("min")
