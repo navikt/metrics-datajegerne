@@ -10,7 +10,7 @@ from stage_behandlingskatalogen import run_etl_behandlinger, run_etl_information
 from stage_pvk import run_etl_pvk
 
 # Datasets
-from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser, run_etl_datasett_prioritertlist, run_etl_datasett_gjenbruk, run_etl_sist_oppdatert
+from datasets import run_etl_datasett_varslinger, run_etl_datasett_beskrivelser, run_etl_datasett_prioritertlist, run_etl_datasett_gjenbruk, run_etl_sist_oppdatert, run_etl_datasett_pvk_flow
 
 
 
@@ -56,6 +56,8 @@ if __name__ == "__main__":
         logging.info("Gjenbruk kjørt!")
         run_etl_sist_oppdatert()
         logging.info("Sist oppdatert kjørt!")
+        run_etl_datasett_pvk_flow()
+        logging.info("PVK flow kjørt!")
     except Exception as e:
         logging.info(e)
         print("Denne feilen oppsto: ", e)

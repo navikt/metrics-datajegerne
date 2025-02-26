@@ -203,3 +203,31 @@ def run_etl_sist_oppdatert():
     job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
     job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
     return None
+
+
+def run_etl_datasett_pvk_flow():
+    # Leser data
+    sql = "SELECT * FROM `teamdatajegerne-prod-c8b1.etterlevelse.stage_pvk_dokument`"
+    df = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+
+    # Finner tidspunktet statusen endret seg første gang.
+    # OBS: Dersom det kommer nye versjoner av en tidligere vurdert PVK, vil denne feile
+    # Løsningen er å legge til en "versjon" i index-kolonnene i groupby-funksjonene. Finnes per nå ikke i databasen
+    df = df.groupby(["pvkDokumentId", "status"])["time"].agg("min")
+    df = df.reset_index(name="timestamp")
+    df.set_index(["pvkDokumentId", "status"], inplace=True)
+    df["timestamp"] = df["timestamp"].astype(str)
+
+    # Vi pivoterer opp slik at hver distinkte verdi i status-kolonna blir en egen kolonne
+    df = df.unstack().droplevel(0, axis=1).reset_index()
+
+    # Skriver til BQ
+    client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
+
+    project = "teamdatajegerne-prod-c8b1"
+    dataset = "etterlevelse"
+    table = "ds_pvk_flyt"
+
+    table_id = f"{project}.{dataset}.{table}"
+    job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
