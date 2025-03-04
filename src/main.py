@@ -20,44 +20,41 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     logging.basicConfig(level=logging.DEBUG)
     logging.info("Jobben starter!")
-    try:
-        # Flytting og transformering av data fra kilde
-        run_etl_behandlinger() # Behandlinger
-        run_etl_information_types() # Knytning mellom policies og information types
-        run_etl_legal_bases() # Behandlingsgrunnlag med beskrivelser
-        run_etl_systems() # systemer brukt i behandling
-        run_etl_dataprocessors() # databehandlere
-        logging.info("Behandlingskatalogen kjørt")
 
-        run_etl_pvk() # PVK-dokumenter
-        logging.info("PVK kjørt")
-        run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
-        logging.info("Besvarelser kjørt!")
-        run_etl_dokumenter() # Dokumentegenskaper
-        logging.info("Dokumenter kjørt!")
-        run_etl_tema() # krav fordelt på tema
-        logging.info("Krav og tema kjørt!")
-        run_etl_spoersmaal_og_svar() # spørsmål og svar til kraveier
-        logging.info("Spørsmål og svar kjørt!")
-        run_etl_relasjoner() # koblinger mellom dokumenter
-        logging.info("Relasjoner kjørt!")
-        run_etl_tildelt_og_notater() # Viser hvilke krav som er tildelt til hvem og hvor notater er skrevet
-        logging.info("Tildelt og notater kjørt!")
+    # Flytting og transformering av data fra kilde
+    run_etl_behandlinger() # Behandlinger
+    run_etl_information_types() # Knytning mellom policies og information types
+    run_etl_legal_bases() # Behandlingsgrunnlag med beskrivelser
+    run_etl_systems() # systemer brukt i behandling
+    run_etl_dataprocessors() # databehandlere
+    logging.info("Behandlingskatalogen kjørt")
+
+    run_etl_pvk() # PVK-dokumenter
+    logging.info("PVK kjørt")
+    run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
+    logging.info("Besvarelser kjørt!")
+    run_etl_dokumenter() # Dokumentegenskaper
+    logging.info("Dokumenter kjørt!")
+    run_etl_tema() # krav fordelt på tema
+    logging.info("Krav og tema kjørt!")
+    run_etl_spoersmaal_og_svar() # spørsmål og svar til kraveier
+    logging.info("Spørsmål og svar kjørt!")
+    run_etl_relasjoner() # koblinger mellom dokumenter
+    logging.info("Relasjoner kjørt!")
+    run_etl_tildelt_og_notater() # Viser hvilke krav som er tildelt til hvem og hvor notater er skrevet
+    logging.info("Tildelt og notater kjørt!")
 
 
-        # Videre transformering i python siden vi ikke orker å gjøre alt i SQL: Dette blir egne tabeller som blir datasett på Markedsplassen
-        run_etl_datasett_varslinger()
-        logging.info("Varslinger kjørt!")
-        run_etl_datasett_beskrivelser()
-        logging.info("Beskrivelser kjørt!")
-        run_etl_datasett_prioritertlist()
-        logging.info("Prioritert kjørt kjørt!")
-        run_etl_datasett_gjenbruk()
-        logging.info("Gjenbruk kjørt!")
-        run_etl_sist_oppdatert()
-        logging.info("Sist oppdatert kjørt!")
-        run_etl_datasett_pvk_flow()
-        logging.info("PVK flow kjørt!")
-    except Exception as e:
-        logging.info(e)
-        print("Denne feilen oppsto: ", e)
+    # Videre transformering i python siden vi ikke orker å gjøre alt i SQL: Dette blir egne tabeller som blir datasett på Markedsplassen
+    run_etl_datasett_varslinger()
+    logging.info("Varslinger kjørt!")
+    run_etl_datasett_beskrivelser()
+    logging.info("Beskrivelser kjørt!")
+    run_etl_datasett_prioritertlist()
+    logging.info("Prioritert kjørt kjørt!")
+    run_etl_datasett_gjenbruk()
+    logging.info("Gjenbruk kjørt!")
+    run_etl_sist_oppdatert()
+    logging.info("Sist oppdatert kjørt!")
+    run_etl_datasett_pvk_flow()
+    logging.info("PVK flow kjørt!")

@@ -215,6 +215,16 @@ def run_etl_datasett_pvk_flow():
     # Løsningen er å legge til en "versjon" i index-kolonnene i groupby-funksjonene. Finnes per nå ikke i databasen
     df = df.groupby(["pvkDokumentId", "status"])["time"].agg("min")
     df = df.reset_index(name="timestamp")
+    relevant_statuses = ["UNDERARBEID", "SENDT_TIL_PVO", "VURDERT_AV_PVO", "GODKJENT_AV_RISIKOEIER", "AKTIV"]
+    max_time = df["timestamp"].max()
+    pvkDokumentId = df["pvkDokumentId"].values[0]
+    for status in relevant_statuses:
+        if status not in df["status"].values:
+            df_temp = pd.DataFrame({"pvkDokumentId": [pvkDokumentId],
+                                    "time": [max_time],
+                                    "status": status})
+            df = pd.concat([df, df_temp])
+
     df.set_index(["pvkDokumentId", "status"], inplace=True)
     df["timestamp"] = df["timestamp"].astype(str)
 
