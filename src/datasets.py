@@ -221,7 +221,7 @@ def run_etl_datasett_pvk_flow():
     for status in relevant_statuses:
         if status not in df["status"].values:
             df_temp = pd.DataFrame({"pvkDokumentId": [pvkDokumentId],
-                                    "time": [max_time],
+                                    "timestamp": [max_time],
                                     "status": status})
             df = pd.concat([df, df_temp])
 
@@ -230,6 +230,8 @@ def run_etl_datasett_pvk_flow():
 
     # Vi pivoterer opp slik at hver distinkte verdi i status-kolonna blir en egen kolonne
     df = df.unstack().droplevel(0, axis=1).reset_index()
+
+    print(df)
 
     # Skriver til BQ
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
