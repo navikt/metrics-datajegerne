@@ -11,7 +11,7 @@ from google.cloud import bigquery
 
 def run_etl_dokumenter():
     # Obs: Denne serien går bare tilbake til august 2023
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseDokumentasjon'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name in ('EtterlevelseDokumentasjon', 'ETTERLEVELSE_DOKUMENTASJON')", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     # Konverterer stringen til json
     df["data"] = df["data"].apply(lambda x: json.loads(x))
 
