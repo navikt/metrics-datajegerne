@@ -20,8 +20,8 @@ def run_etl_dokumenter():
     for col in cols_to_keep:
         if col == "id":
             df[col] = df["data"].apply(lambda x: x[col])
-        else:
-            df[col] = df["data"].apply(lambda x: x["data"][col] if col in x["data"] else None)
+        else: ## This is shieet, bør løses på en bedre måte
+            df[col] = df["data"].apply(lambda x: None if pd.isnull(x) else x["data"][col] if "data" in x and col in x["data"] else x["etterlevelseDokumentasjonData"][col] if "etterlevelseDokumentasjonData" in x and col in x["etterlevelseDokumentasjonData"] else None)
 
     # Beholder bare de vi har skikkelig lyst på
     cols_to_keep.append("time")
