@@ -38,8 +38,12 @@ def run_etl_pvk():
     # PVK-dokument
     df_pvk = df[df["table_name"] == "PVK_DOKUMENT"].copy()
     cols_to_keep = list(df_pvk["data"].values[0]["pvkDokumentData"].keys())
+    cols_to_keep.append("sendtTilPvoAv")
     for col in cols_to_keep:
-        df_pvk[col] = df_pvk["data"].apply(lambda x: x["pvkDokumentData"][col])
+        try:
+            df_pvk[col] = df_pvk["data"].apply(lambda x: x["pvkDokumentData"][col])
+        except:
+            df_pvk[col] = df_pvk["data"].apply(lambda x: None)
     df_pvk["etterlevelseDokumentId"] = df_pvk["data"].apply(lambda x: x["etterlevelseDokumentId"])
     df_pvk["status"] = df_pvk["data"].apply(lambda x: x["status"])
     for col in ["etterlevelseDokumentId", "time", "table_id", "status", "aktivRad"]:
