@@ -221,7 +221,7 @@ def run_etl_datasett_pvk_flow():
     for status in relevant_statuses:
         if status not in df["status"].values:
             df_temp = pd.DataFrame({"pvkDokumentId": [pvkDokumentId],
-                                    "time": [max_time],
+                                    "timestamp": [max_time],
                                     "status": status})
             df = pd.concat([df, df_temp])
 
