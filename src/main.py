@@ -56,5 +56,5 @@ if __name__ == "__main__":
     logging.info("Gjenbruk kjørt!")
     run_etl_sist_oppdatert()
     logging.info("Sist oppdatert kjørt!")
-    run_etl_datasett_pvk_flow()
-    logging.info("PVK flow kjørt!")
+    #run_etl_datasett_pvk_flow()
+    #logging.info("PVK flow kjørt!")
