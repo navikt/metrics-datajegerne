@@ -40,10 +40,7 @@ def run_etl_pvk():
     cols_to_keep = list(df_pvk["data"].values[0]["pvkDokumentData"].keys())
     cols_to_keep.append("sendtTilPvoAv")
     for col in cols_to_keep:
-        try:
-            df_pvk[col] = df_pvk["data"].apply(lambda x: x["pvkDokumentData"][col])
-        except:
-            df_pvk[col] = df_pvk["data"].apply(lambda x: None)
+            df_pvk[col] = df_pvk["data"].apply(lambda x: x["pvkDokumentData"][col] if col in x["pvkDokumentData"] else None)
     df_pvk["etterlevelseDokumentId"] = df_pvk["data"].apply(lambda x: x["etterlevelseDokumentId"])
     df_pvk["status"] = df_pvk["data"].apply(lambda x: x["status"])
     for col in ["etterlevelseDokumentId", "time", "table_id", "status", "aktivRad"]:
@@ -84,8 +81,8 @@ def run_etl_pvk():
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
     project = "teamdatajegerne-prod-c8b1"
     dataset = "etterlevelse"
-
     for table in table_dict:
         table_id = f"{project}.{dataset}.{table}"
         job_config = bigquery.job.LoadJobConfig(write_disposition="WRITE_TRUNCATE")
         job = client.load_table_from_dataframe(table_dict[table], table_id, job_config=job_config)
+        job.result()
