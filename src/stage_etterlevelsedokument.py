@@ -80,7 +80,7 @@ def run_etl_dokumenter():
     df = df.merge(df_krav, on=["etterlevelseDokumentasjonId", "time"])
 
     # Merker også hvilke dokumenter som er slettet
-    sql = "select * from `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_generic_storage` where type = 'EtterlevelseDokumentasjon'"
+    sql = "select * from `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_etterlevelse_dokumentasjon`"
     df_gs = pandas_gbq.read_gbq(sql, "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     etterlevelseDokumentasjonIdIkkeSlettet = df_gs["id"]
     df["slettet"] = False

@@ -8,10 +8,10 @@ from google.cloud import bigquery
 
 def run_etl_spoersmaal_og_svar():
     # Leser audit-data
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_generic_storage` where type = 'Tilbakemelding'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_tilbakemelding`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
 
     # Pakker ut json-blob
-    for col in ["kravNummer", "kravVersjon", "melder", "meldinger", "status"]:
+    for col in ["melder", "meldinger", "status"]:
         df[col] = df["data"].apply(lambda x: json.loads(x)[col] if col in json.loads(x).keys() else None)
 
     for col in ["tid", "rolle", "meldingNr", "innhold"]:
@@ -24,7 +24,7 @@ def run_etl_spoersmaal_og_svar():
 
     # Ekspanderer listene i kolonnene slik at har en observasjon per element i listene
     df = df.explode(["tid", "rolle", "innhold", "meldingNr"])
-    df = df[["kravNummer", "created_date", "status", "id", "type", "tid", "rolle", "innhold", "meldingNr"]]
+    df = df[["krav_nummer", "created_date", "status", "id", "type", "tid", "rolle", "innhold", "meldingNr"]]
 
     # Markerer hvilke meldinger som er siste i rekka
     df["sist_aktivitet"] = df.groupby("id")["tid"].transform("max")
@@ -53,7 +53,7 @@ def run_etl_spoersmaal_og_svar():
     # Kobler på tema
     # Henter inn mer info om kravene og
     df_tema = pandas_gbq.read_gbq("SELECT distinct kravNummer, tema FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav_tema`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
-    df = df.merge(df_tema, on="kravNummer", how="outer")
+    df = df.merge(df_tema, on="krav_nummer", how="outer")
 
     # Skrive til BigQuery
     client = bigquery.Client(project="teamdatajegerne-prod-c8b1")
