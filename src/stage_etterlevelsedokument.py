@@ -42,7 +42,7 @@ def run_etl_dokumenter():
     df_krav["data"] = df_krav["data"].apply(lambda x: json.loads(x))
 
     # ...og pakker ut
-    cols_to_keep = ["kravNummer", "relevansFor"]
+    cols_to_keep = ["krav_nummer", "relevansFor"]
     for col in cols_to_keep:
         df_krav[col] = df_krav["data"].apply(lambda x: x[col])
 
@@ -68,10 +68,10 @@ def run_etl_dokumenter():
     # Og da er det jo greit!
     df_krav = df_krav[df_krav["drop_rad"] == False]
     # Vi må også fjerne duplikater siden krav kan være relevante for flere kategorier
-    df_krav.drop_duplicates(subset=["etterlevelseDokumentasjonId", "time", "kravNummer"], inplace=True)
+    df_krav.drop_duplicates(subset=["etterlevelseDokumentasjonId", "time", "krav_nummer"], inplace=True)
 
     # Så gjør vi det motsatte av pd.explode: Vi imploderer elementene inn i en liste. Går fra stor tabell til mindre tabell
-    df_krav = df_krav.groupby(["etterlevelseDokumentasjonId", "time"])["kravNummer"].agg(lambda x: x.tolist()).reset_index(name="relevanteKrav")
+    df_krav = df_krav.groupby(["etterlevelseDokumentasjonId", "time"])["krav_nummer"].agg(lambda x: x.tolist()).reset_index(name="relevanteKrav")
 
     # Teller opp
     df_krav["antallKrav"] = df_krav["relevanteKrav"].apply(lambda x: len(x))
