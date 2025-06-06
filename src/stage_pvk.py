@@ -39,6 +39,7 @@ def run_etl_pvk():
     df_pvk = df[df["table_name"] == "PVK_DOKUMENT"].copy()
     cols_to_keep = list(df_pvk["data"].values[0]["pvkDokumentData"].keys())
     cols_to_keep.append("sendtTilPvoAv")
+    cols_to_keep.append("sendtTilPvoDato")
     for col in cols_to_keep:
             df_pvk[col] = df_pvk["data"].apply(lambda x: x["pvkDokumentData"][col] if col in x["pvkDokumentData"] else None)
     df_pvk["etterlevelseDokumentId"] = df_pvk["data"].apply(lambda x: x["etterlevelseDokumentId"])
