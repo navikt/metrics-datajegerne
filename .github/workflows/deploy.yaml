@@ -9,7 +9,7 @@ permissions:
 jobs:
   build-and-push:
     name: Build and push GAR
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
@@ -24,7 +24,7 @@ jobs:
 
   deploy-prod:
     name: Deploy prod gcp
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build-and-push]
     steps:
       - uses: actions/checkout@v4
