@@ -29,8 +29,9 @@ if __name__ == "__main__":
     run_etl_dataprocessors() # databehandlere
     logging.info("Behandlingskatalogen kjørt")
 
-    run_etl_pvk() # PVK-dokumenter
-    logging.info("PVK kjørt")
+    #Temp disable of pvk until it is fixed
+    #run_etl_pvk() # PVK-dokumenter
+    #logging.info("PVK kjørt")
     run_etl_etterlevelsebesvarelse() # Besvarelser fra etterlevere
     logging.info("Besvarelser kjørt!")
     run_etl_dokumenter() # Dokumentegenskaper
