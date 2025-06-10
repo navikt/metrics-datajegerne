@@ -12,7 +12,7 @@ def run_etl_tildelt_og_notater():
     df.sort_values(by="time", ascending=False, inplace=True)
 
     # Pakker ut json-blob
-    for col in ["notater", "tildeltMed"]:
+    for col in ["kravNummer", "notater", "tildeltMed"]:
         df[col]=df["data"].apply(lambda x: json.loads(x)["data"][col])
 
     df.rename({"krav_nummer": "kravNummer"}, axis=1, inplace=True)
