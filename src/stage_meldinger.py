@@ -24,7 +24,7 @@ def run_etl_spoersmaal_og_svar():
 
     # Ekspanderer listene i kolonnene slik at har en observasjon per element i listene
     df = df.explode(["tid", "rolle", "innhold", "meldingNr"])
-    df = df[["krav_nummer", "created_date", "status", "id", "type", "tid", "rolle", "innhold", "meldingNr"]]
+    df = df[["krav_nummer", "created_date", "status", "id", "tid", "rolle", "innhold", "meldingNr"]]
 
     # Markerer hvilke meldinger som er siste i rekka
     df["sist_aktivitet"] = df.groupby("id")["tid"].transform("max")
