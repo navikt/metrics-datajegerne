@@ -12,11 +12,12 @@ def run_etl_tema():
 
     # Pakker ut json
     df["regelverk"] = df["data"].apply(lambda x: [item["lov"] for item in json.loads(x)["regelverk"]])
+    df.rename({"krav_nummer": "kravNummer"}, axis=1, inplace=True)
     #df["kravNummer"] = df["data"].apply(lambda x: json.loads(x)["kravNummer"])
     df = df.explode("regelverk")
 
     # duplikater fordi regelverk er på detaljert nivå
-    df = df[["krav_nummer", "regelverk"]].drop_duplicates().copy()
+    df = df[["kravNummer", "regelverk"]].drop_duplicates().copy()
 
     # Må koble på tema og
     df_2 = pandas_gbq.read_gbq("select distinct regelverk, tema, underavdeling FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav_tema`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)

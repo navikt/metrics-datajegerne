@@ -8,12 +8,15 @@ from google.cloud import bigquery
 
 def run_etl_tildelt_og_notater():
     # Leser data
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name = 'EtterlevelseMetadata'", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name in ('EtterlevelseMetadata', 'ETTERLEVELSE_METADATA')", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df.sort_values(by="time", ascending=False, inplace=True)
 
     # Pakker ut json-blob
-    for col in ["notater", "tildeltMed", "kravNummer"]:
+    for col in ["notater", "tildeltMed"]:
         df[col]=df["data"].apply(lambda x: json.loads(x)["data"][col])
+
+    df.rename({"krav_nummer": "kravNummer"}, axis=1, inplace=True)
+    df.rename({"ETTERLEVELSE_DOKUMENTASJON": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
 
     # Har ikke etterlevelsesDokumentasjonId helt tilbake til tidenes morgen
     id_list = []
