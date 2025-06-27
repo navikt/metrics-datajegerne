@@ -8,7 +8,7 @@ from google.cloud import bigquery
 
 def run_etl_tildelt_og_notater():
     # Leser data
-    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_audit_version` where table_name in ('EtterlevelseMetadata', 'ETTERLEVELSE_METADATA')", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
+    df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_etterlevelse_metadata`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
     df.sort_values(by="time", ascending=False, inplace=True)
 
     df.rename({"krav_nummer": "kravNummer"}, axis=1, inplace=True)
@@ -17,27 +17,7 @@ def run_etl_tildelt_og_notater():
     # Pakker ut json-blob
     for col in ["notater", "tildeltMed"]:
         df[col]=df["data"].apply(lambda x: json.loads(x)["data"][col])
-        
 
-    if 'Type' in df.columns:
-        if "kravNummer" in df["data"]:
-            df["kravNummer"]=df["data"].apply(lambda x: json.loads(x)["data"]["kravNummer"])
-        if "etterlevelseDokumentasjonId" in df["data"]:
-            df["etterlevelseDokumentasjonId"]=df["data"].apply(lambda x: json.loads(x)["data"]["etterlevelseDokumentasjonId"])
-
-
-    # Har ikke etterlevelsesDokumentasjonId helt tilbake til tidenes morgen
-    id_list = []
-    for val in df["data"].values:
-        item = json.loads(val)["data"]
-        if "etterlevelseDokumentasjonId" in item.keys() and item["etterlevelseDokumentasjonId"] is not None and len(item["etterlevelseDokumentasjonId"]) > 0:
-            id_list.append(item["etterlevelseDokumentasjonId"])
-        elif "behandlingId" in item.keys():
-            id_list.append(item["behandlingId"])
-        else:
-            print("This is weird")
-
-    df["etterlevelseDokumentasjonId"] = id_list
 
     # Beholder kun disse kolonnene
     df = df[["etterlevelseDokumentasjonId", "table_id", "time", "notater", "tildeltMed", "kravNummer"]]
