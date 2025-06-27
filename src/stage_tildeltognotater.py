@@ -12,12 +12,19 @@ def run_etl_tildelt_og_notater():
     df.sort_values(by="time", ascending=False, inplace=True)
 
     df.rename({"krav_nummer": "kravNummer"}, axis=1, inplace=True)
+    df.rename({"ETTERLEVELSE_DOKUMENTASJON": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
 
     # Pakker ut json-blob
     for col in ["notater", "tildeltMed"]:
         df[col]=df["data"].apply(lambda x: json.loads(x)["data"][col])
+        
 
-    df.rename({"ETTERLEVELSE_DOKUMENTASJON": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
+    if 'Type' in df.columns:
+        if "kravNummer" in df["data"]:
+            df["kravNummer"]=df["data"].apply(lambda x: json.loads(x)["data"]["kravNummer"])
+        if "etterlevelseDokumentasjonId" in df["data"]:
+            df["etterlevelseDokumentasjonId"]=df["data"].apply(lambda x: json.loads(x)["data"]["etterlevelseDokumentasjonId"])
+
 
     # Har ikke etterlevelsesDokumentasjonId helt tilbake til tidenes morgen
     id_list = []
