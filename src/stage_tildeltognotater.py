@@ -9,9 +9,9 @@ from google.cloud import bigquery
 def run_etl_tildelt_og_notater():
     # Leser data
     df = pandas_gbq.read_gbq("SELECT * FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_etterlevelse_metadata`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
-    df.sort_values(by="time", ascending=False, inplace=True)
 
     df.rename({"krav_nummer": "kravNummer"}, axis=1, inplace=True)
+    df.rename({"id": "table_id"}, axis=1, inplace=True)
     df.rename({"ETTERLEVELSE_DOKUMENTASJON": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
 
     # Pakker ut json-blob
@@ -20,7 +20,7 @@ def run_etl_tildelt_og_notater():
 
 
     # Beholder kun disse kolonnene
-    df = df[["etterlevelseDokumentasjonId", "table_id", "time", "notater", "tildeltMed", "kravNummer"]]
+    df = df[["etterlevelseDokumentasjonId", "table_id", "notater", "tildeltMed", "kravNummer"]]
 
     # Kobler sammen med tema
     df_tema = pandas_gbq.read_gbq("SELECT distinct kravNummer, tema FROM `teamdatajegerne-prod-c8b1.landing_zone.etterlevelse_krav_tema`", "teamdatajegerne-prod-c8b1", progress_bar_type=None)
