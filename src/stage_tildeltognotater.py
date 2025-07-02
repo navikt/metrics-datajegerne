@@ -16,7 +16,7 @@ def run_etl_tildelt_og_notater():
 
     # Pakker ut json-blob
     for col in ["notater", "tildeltMed"]:
-        df[col]=df["data"].apply(lambda x: json.loads(x)["data"][col])
+        df[col] = df["data"].apply(lambda x: json.loads(x)[col] if col in json.loads(x).keys() else None)
 
 
     # Beholder kun disse kolonnene
