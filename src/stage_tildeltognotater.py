@@ -12,7 +12,7 @@ def run_etl_tildelt_og_notater():
 
     df.rename({"krav_nummer": "kravNummer"}, axis=1, inplace=True)
     df.rename({"id": "table_id"}, axis=1, inplace=True)
-    df.rename({"ETTERLEVELSE_DOKUMENTASJON": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
+    df.rename({"etterlevelse_dokumentasjon": "etterlevelseDokumentasjonId"}, axis=1, inplace=True)
 
     # Pakker ut json-blob
     for col in ["notater", "tildeltMed"]:
